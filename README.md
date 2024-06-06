@@ -63,12 +63,10 @@
  <img src="./profile-3d-contrib/profile-night-view.svg" alt="Contribution sts" width="%" /></br></br>
   </a> 
   
- [![Walid's github streak](https://github-readme-streak-stats.herokuapp.com/?user=Tirador1&theme=dark&card_width=1000)](https://github.com/Tirador1) </br></br>
-[![𝚐𝚒𝚝𝚑𝚞𝚋 𝚐𝚛𝚊𝚙𝚑](https://github-readme-activity-graph.vercel.app/graph?username=Tirador1&theme=react-dark&hide_border=true&area=true&bg_color=01102d&color=6eb9f2&line=41c350&point=ffffff)](https://github.com/Tirador1) </br>
-[![𝚝𝚛𝚘𝚙𝚑𝚢](https://github-profile-trophy.vercel.app/?username=Tirador1&column=8&margin-w=20&margin-h=20&no-frame=true&theme=algolia&title=Stars,Followers,MultiLanguage,Repositories,Organizations,Commits,PullRequest,Issues)](https://github.com/Tirador1) 
+ [![GitHub Streak](https://github-readme-streak-stats.herokuapp.com?user=Tirador1&theme=transparent&hide_border=true)](https://git.io/streak-stats) </br></br>
+[![activity graph](https://github-readme-activity-graph.vercel.app/graph?username=Tirador1&bg_color=e0eaff&color=000000&line=000000&point=0055ff&area=true&hide_border=true)](https://github.com/ashutosh00710/github-readme-activity-graph) </br>
+[![𝚝𝚛𝚘𝚙𝚑𝚢](https://github-profile-trophy.vercel.app/?username=Tirador1&column=8&margin-w=20&margin-h=20&no-frame=true&theme=dark&title=Stars,Followers,MultiLanguage,Repositories,Organizations,Commits,PullRequest,Issues)](https://github.com/Tirador1) 
 </div>
-
-
 
 </a><br/><br/>
  <div align="center">
