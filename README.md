@@ -42,7 +42,7 @@
 <br clear="both">
 
 <a href="https://github.com/Tirador1">
-   <img alt="github-snake" src="https://raw.githubusercontent.com/Tirador1/Tirador1/output/github-snake-darkBlue.svg" title="🐍 Watch how the snake's eating my contributions" />
+   <img alt="github-snake" src="https://raw.githubusercontent.com/Tirador1/Tirador1/output/github-contribution-grid-snake2.svg" title="🐍 Watch how the snake's eating my contributions" />
 </a>
 
 ###
