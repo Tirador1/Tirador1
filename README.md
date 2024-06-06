@@ -40,6 +40,6 @@
 
 <br clear="both">
 
-![snake animation](https://github.com/<seu user name>/<seu user name>/blob/output/github-contribution-grid-snake2.svg)
+![snake animation](https://github.com/Tirador1/Tirador1/blob/output/github-contribution-grid-snake2.svg)
 
 ###
