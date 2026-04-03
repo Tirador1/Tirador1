@@ -59,7 +59,7 @@
 <rect x="69" y="50" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="69" y="64" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="69" y="78" width="11" height="11" rx="2" fill="#161b22"/>
-<rect x="69" y="92" width="11" height="11" rx="2" fill="#003845" style="animation:e1_3 9.36s linear infinite;transform-origin:74.5px 97.5px"/>
+<rect x="69" y="92" width="11" height="11" rx="2" fill="#003845" style="animation:e1_3 15.60s linear infinite;transform-origin:74.5px 97.5px"/>
 <rect x="69" y="106" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="69" y="120" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="69" y="134" width="11" height="11" rx="2" fill="#161b22"/>
@@ -133,7 +133,7 @@
 <rect x="209" y="106" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="209" y="120" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="209" y="134" width="11" height="11" rx="2" fill="#161b22"/>
-<rect x="223" y="50" width="11" height="11" rx="2" fill="#003845" style="animation:e12_0 9.36s linear infinite;transform-origin:228.5px 55.5px"/>
+<rect x="223" y="50" width="11" height="11" rx="2" fill="#003845" style="animation:e12_0 15.60s linear infinite;transform-origin:228.5px 55.5px"/>
 <rect x="223" y="64" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="223" y="78" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="223" y="92" width="11" height="11" rx="2" fill="#161b22"/>
@@ -247,16 +247,16 @@
 <rect x="433" y="134" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="447" y="50" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="447" y="64" width="11" height="11" rx="2" fill="#161b22"/>
-<rect x="447" y="78" width="11" height="11" rx="2" fill="#00f0ff" style="animation:e28_2 9.36s linear infinite;transform-origin:452.5px 83.5px"/>
+<rect x="447" y="78" width="11" height="11" rx="2" fill="#00f0ff" style="animation:e28_2 15.60s linear infinite;transform-origin:452.5px 83.5px"/>
 <rect x="447" y="92" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="447" y="106" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="447" y="120" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="447" y="134" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="461" y="50" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="461" y="64" width="11" height="11" rx="2" fill="#161b22"/>
-<rect x="461" y="78" width="11" height="11" rx="2" fill="#003845" style="animation:e29_2 9.36s linear infinite;transform-origin:466.5px 83.5px"/>
-<rect x="461" y="92" width="11" height="11" rx="2" fill="#006d80" style="animation:e29_3 9.36s linear infinite;transform-origin:466.5px 97.5px"/>
-<rect x="461" y="106" width="11" height="11" rx="2" fill="#003845" style="animation:e29_4 9.36s linear infinite;transform-origin:466.5px 111.5px"/>
+<rect x="461" y="78" width="11" height="11" rx="2" fill="#003845" style="animation:e29_2 15.60s linear infinite;transform-origin:466.5px 83.5px"/>
+<rect x="461" y="92" width="11" height="11" rx="2" fill="#006d80" style="animation:e29_3 15.60s linear infinite;transform-origin:466.5px 97.5px"/>
+<rect x="461" y="106" width="11" height="11" rx="2" fill="#003845" style="animation:e29_4 15.60s linear infinite;transform-origin:466.5px 111.5px"/>
 <rect x="461" y="120" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="461" y="134" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="475" y="50" width="11" height="11" rx="2" fill="#161b22"/>
@@ -264,8 +264,8 @@
 <rect x="475" y="78" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="475" y="92" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="475" y="106" width="11" height="11" rx="2" fill="#161b22"/>
-<rect x="475" y="120" width="11" height="11" rx="2" fill="#00f0ff" style="animation:e30_5 9.36s linear infinite;transform-origin:480.5px 125.5px"/>
-<rect x="475" y="134" width="11" height="11" rx="2" fill="#006d80" style="animation:e30_6 9.36s linear infinite;transform-origin:480.5px 139.5px"/>
+<rect x="475" y="120" width="11" height="11" rx="2" fill="#00f0ff" style="animation:e30_5 15.60s linear infinite;transform-origin:480.5px 125.5px"/>
+<rect x="475" y="134" width="11" height="11" rx="2" fill="#006d80" style="animation:e30_6 15.60s linear infinite;transform-origin:480.5px 139.5px"/>
 <rect x="489" y="50" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="489" y="64" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="489" y="78" width="11" height="11" rx="2" fill="#161b22"/>
@@ -286,8 +286,8 @@
 <rect x="517" y="92" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="517" y="106" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="517" y="120" width="11" height="11" rx="2" fill="#161b22"/>
-<rect x="517" y="134" width="11" height="11" rx="2" fill="#00f0ff" style="animation:e33_6 9.36s linear infinite;transform-origin:522.5px 139.5px"/>
-<rect x="531" y="50" width="11" height="11" rx="2" fill="#006d80" style="animation:e34_0 9.36s linear infinite;transform-origin:536.5px 55.5px"/>
+<rect x="517" y="134" width="11" height="11" rx="2" fill="#00f0ff" style="animation:e33_6 15.60s linear infinite;transform-origin:522.5px 139.5px"/>
+<rect x="531" y="50" width="11" height="11" rx="2" fill="#006d80" style="animation:e34_0 15.60s linear infinite;transform-origin:536.5px 55.5px"/>
 <rect x="531" y="64" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="531" y="78" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="531" y="92" width="11" height="11" rx="2" fill="#161b22"/>
@@ -418,24 +418,24 @@
 <rect x="783" y="78" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="783" y="92" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="783" y="106" width="11" height="11" rx="2" fill="#161b22"/>
-<rect x="783" y="120" width="11" height="11" rx="2" fill="#006d80" style="animation:e52_5 9.36s linear infinite;transform-origin:788.5px 125.5px"/>
+<rect x="783" y="120" width="11" height="11" rx="2" fill="#006d80" style="animation:e52_5 15.60s linear infinite;transform-origin:788.5px 125.5px"/>
 <rect x="783" y="134" width="11" height="11" rx="2" fill="#161b22"/>
 
-<g style="animation:s14 9.36s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(129,45,17)" style="animation:g14 9.36s linear infinite"/></g>
-<g style="animation:s13 9.36s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(138,50,17)" style="animation:g13 9.36s linear infinite"/></g>
-<g style="animation:s12 9.36s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(146,55,18)" style="animation:g12 9.36s linear infinite"/></g>
-<g style="animation:s11 9.36s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(155,60,18)" style="animation:g11 9.36s linear infinite"/></g>
-<g style="animation:s10 9.36s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(163,65,18)" style="animation:g10 9.36s linear infinite"/></g>
-<g style="animation:s9 9.36s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(172,70,19)" style="animation:g9 9.36s linear infinite"/></g>
-<g style="animation:s8 9.36s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(180,75,19)" style="animation:g8 9.36s linear infinite"/></g>
-<g style="animation:s7 9.36s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(189,80,20)" style="animation:g7 9.36s linear infinite"/></g>
-<g style="animation:s6 9.36s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(198,85,20)" style="animation:g6 9.36s linear infinite"/></g>
-<g style="animation:s5 9.36s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(206,90,20)" style="animation:g5 9.36s linear infinite"/></g>
-<g style="animation:s4 9.36s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(215,95,21)" style="animation:g4 9.36s linear infinite"/></g>
-<g style="animation:s3 9.36s linear infinite"><rect width="11" height="11" rx="3" fill="rgb(223,100,21)" style="animation:g3 9.36s linear infinite"/></g>
-<g style="animation:s2 9.36s linear infinite"><rect width="11" height="11" rx="3" fill="rgb(232,105,21)" style="animation:g2 9.36s linear infinite"/></g>
-<g style="animation:s1 9.36s linear infinite"><rect width="11" height="11" rx="3" fill="rgb(240,110,22)" style="animation:g1 9.36s linear infinite"/></g>
-<g style="animation:s0 9.36s linear infinite">
+<g style="animation:s14 15.60s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(129,45,17)" style="animation:g14 15.60s linear infinite"/></g>
+<g style="animation:s13 15.60s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(138,50,17)" style="animation:g13 15.60s linear infinite"/></g>
+<g style="animation:s12 15.60s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(146,55,18)" style="animation:g12 15.60s linear infinite"/></g>
+<g style="animation:s11 15.60s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(155,60,18)" style="animation:g11 15.60s linear infinite"/></g>
+<g style="animation:s10 15.60s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(163,65,18)" style="animation:g10 15.60s linear infinite"/></g>
+<g style="animation:s9 15.60s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(172,70,19)" style="animation:g9 15.60s linear infinite"/></g>
+<g style="animation:s8 15.60s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(180,75,19)" style="animation:g8 15.60s linear infinite"/></g>
+<g style="animation:s7 15.60s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(189,80,20)" style="animation:g7 15.60s linear infinite"/></g>
+<g style="animation:s6 15.60s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(198,85,20)" style="animation:g6 15.60s linear infinite"/></g>
+<g style="animation:s5 15.60s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(206,90,20)" style="animation:g5 15.60s linear infinite"/></g>
+<g style="animation:s4 15.60s linear infinite"><rect width="11" height="11" rx="2" fill="rgb(215,95,21)" style="animation:g4 15.60s linear infinite"/></g>
+<g style="animation:s3 15.60s linear infinite"><rect width="11" height="11" rx="3" fill="rgb(223,100,21)" style="animation:g3 15.60s linear infinite"/></g>
+<g style="animation:s2 15.60s linear infinite"><rect width="11" height="11" rx="3" fill="rgb(232,105,21)" style="animation:g2 15.60s linear infinite"/></g>
+<g style="animation:s1 15.60s linear infinite"><rect width="11" height="11" rx="3" fill="rgb(240,110,22)" style="animation:g1 15.60s linear infinite"/></g>
+<g style="animation:s0 15.60s linear infinite">
   <rect width="11" height="11" rx="3" fill="#f97316"/>
   <rect x="1" y="1" width="9" height="9" rx="2" fill="#fb923c"/>
   <circle cx="3.5" cy="4" r="1.5" fill="#0d1117"/>
