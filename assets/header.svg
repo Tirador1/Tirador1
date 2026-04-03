@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 310" width="850" height="310">
+  <defs>
+    <linearGradient id="termBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1b2e"/>
+      <stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <linearGradient id="titleBar" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#21222e"/>
+      <stop offset="100%" stop-color="#1a1b2e"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <style>
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+
+    .term-bg { fill: url(#termBg); stroke: #30363d; stroke-width: 1.5; }
+    .title { fill: url(#titleBar); }
+    .dot-r { fill: #ff5f56; } .dot-y { fill: #ffbd2e; } .dot-g { fill: #27c93f; }
+    .title-txt { fill: #6e7681; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 12px; }
+
+    .prompt { fill: #bc8cff; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 14px; font-weight: bold; }
+    .cmd { fill: #e6edf3; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 14px; }
+    .out-name { fill: #00f0ff; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 16px; font-weight: bold; filter: url(#glow); }
+    .out { fill: #e6edf3; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 14px; }
+    .out-hl { fill: #7c3aed; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 14px; }
+    .out-green { fill: #3fb950; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 14px; }
+    .comment { fill: #6e7681; font-family: ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 12px; font-style: italic; }
+    .separator { fill: #30363d; }
+
+    .cursor { fill: #00f0ff; animation: blink 1s step-end infinite; }
+
+    .g1 { opacity: 0; animation: slideIn 0.4s ease forwards; animation-delay: 0.3s; }
+    .g2 { opacity: 0; animation: slideIn 0.4s ease forwards; animation-delay: 0.9s; }
+    .g3 { opacity: 0; animation: slideIn 0.4s ease forwards; animation-delay: 1.6s; }
+    .g4 { opacity: 0; animation: slideIn 0.4s ease forwards; animation-delay: 2.2s; }
+    .g5 { opacity: 0; animation: slideIn 0.4s ease forwards; animation-delay: 2.9s; }
+    .g6 { opacity: 0; animation: slideIn 0.4s ease forwards; animation-delay: 3.5s; }
+    .g7 { opacity: 0; animation: slideIn 0.4s ease forwards; animation-delay: 4.2s; }
+    .g8 { opacity: 0; animation: slideIn 0.4s ease forwards; animation-delay: 4.8s; }
+    .g9 { opacity: 0; animation: fadeIn 0.3s ease forwards; animation-delay: 5.5s; }
+  </style>
+
+  <!-- Terminal frame -->
+  <rect class="term-bg" x="0.5" y="0.5" width="849" height="309" rx="12"/>
+
+  <!-- Title bar -->
+  <rect class="title" x="1" y="1" width="848" height="36" rx="12 12 0 0"/>
+  <rect class="title" x="1" y="25" width="848" height="12"/>
+  <line x1="1" y1="37" x2="849" y2="37" stroke="#30363d" stroke-width="0.5"/>
+  <circle class="dot-r" cx="22" cy="19" r="6"/>
+  <circle class="dot-y" cx="42" cy="19" r="6"/>
+  <circle class="dot-g" cx="62" cy="19" r="6"/>
+  <text class="title-txt" x="425" y="23" text-anchor="middle">ahmad@dev ~ /profile</text>
+
+  <!-- Line 1: whoami -->
+  <g class="g1">
+    <text class="prompt" x="25" y="65">$</text>
+    <text class="cmd" x="42" y="65">whoami</text>
+  </g>
+  <g class="g2">
+    <text class="out-name" x="25" y="90">Ahmad Abdulmajid</text>
+  </g>
+
+  <!-- Separator -->
+  <g class="g3">
+    <rect class="separator" x="25" y="104" width="800" height="0.5" rx="1"/>
+  </g>
+
+  <!-- Line 2: role -->
+  <g class="g3">
+    <text class="prompt" x="25" y="128">$</text>
+    <text class="cmd" x="42" y="128">cat role.txt</text>
+  </g>
+  <g class="g4">
+    <text class="out" x="25" y="152">Full Stack Software Engineer</text>
+    <text class="out-hl" x="310" y="152">|</text>
+    <text class="out" x="325" y="152">Backend Specialist</text>
+  </g>
+
+  <!-- Line 3: tech -->
+  <g class="g5">
+    <text class="prompt" x="25" y="182">$</text>
+    <text class="cmd" x="42" y="182">ls ~/tech-stack/</text>
+  </g>
+  <g class="g6">
+    <text class="out" x="25" y="206">Java</text>
+    <text class="comment" x="70" y="206">&#183;</text>
+    <text class="out" x="85" y="206">Python</text>
+    <text class="comment" x="147" y="206">&#183;</text>
+    <text class="out" x="162" y="206">Node.js</text>
+    <text class="comment" x="230" y="206">&#183;</text>
+    <text class="out" x="245" y="206">React</text>
+    <text class="comment" x="298" y="206">&#183;</text>
+    <text class="out" x="313" y="206">TypeScript</text>
+    <text class="comment" x="410" y="206">&#183;</text>
+    <text class="out" x="425" y="206">HTML</text>
+    <text class="comment" x="468" y="206">&#183;</text>
+    <text class="out" x="483" y="206">CSS</text>
+  </g>
+
+  <!-- Line 4: status -->
+  <g class="g7">
+    <text class="prompt" x="25" y="240">$</text>
+    <text class="cmd" x="42" y="240">echo $STATUS</text>
+  </g>
+  <g class="g8">
+    <text class="out-green" x="25" y="264">Building scalable systems &amp; open to collaboration</text>
+  </g>
+
+  <!-- Blinking cursor -->
+  <g class="g9">
+    <text class="prompt" x="25" y="292">$</text>
+    <rect class="cursor" x="42" y="279" width="9" height="16" rx="1"/>
+  </g>
+</svg>
