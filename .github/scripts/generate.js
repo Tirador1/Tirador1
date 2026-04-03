@@ -289,7 +289,7 @@ function generateSnake(user) {
   for (let i = 0; i < MAX_BODY; i++) fullPath.push({ ...startPos });
 
   const totalSteps = fullPath.length;
-  const stepDur = 0.06;
+  const stepDur = 0.10;
   const duration = totalSteps * stepDur;
   const pctPerStep = 100 / totalSteps;
 
