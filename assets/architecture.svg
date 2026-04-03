@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 420" width="850" height="420">
+  <defs>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="flow" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00f0ff" stop-opacity="0"/><stop offset="50%" stop-color="#00f0ff" stop-opacity="1"/><stop offset="100%" stop-color="#00f0ff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <style>
+    .box{fill:#161b22;stroke-width:1.5;rx:8}
+    .lbl{font-family:ui-monospace,'Fira Code',monospace;fill:#e6edf3;font-size:13px;font-weight:bold;text-anchor:middle}
+    .sub{font-family:ui-monospace,'Fira Code',monospace;fill:#6e7681;font-size:10px;text-anchor:middle}
+    .conn{fill:none;stroke:#30363d;stroke-width:1.5}
+    .dot{fill:#00f0ff;filter:url(#glow)}
+    .heading{font-family:ui-monospace,'Fira Code',monospace;fill:#e6edf3;font-size:16px;font-weight:bold;text-anchor:middle;letter-spacing:1px}
+    .headingsub{font-family:ui-monospace,'Fira Code',monospace;fill:#6e7681;font-size:11px;text-anchor:middle}
+    @keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+    .pulse{animation:pulse 2s ease-in-out infinite}
+  </style>
+
+  <!-- Background -->
+  <rect width="850" height="420" rx="12" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+  <text class="heading" x="425" y="28">System Architecture</text>
+  <text class="headingsub" x="425" y="44">How I design backend systems</text>
+
+  <!-- ═══ ROW 1: Clients ═══ -->
+  <rect class="box" x="310" y="58" width="100" height="40" stroke="#61dafb"/>
+  <text class="lbl" x="360" y="82">React</text>
+  <rect class="box" x="440" y="58" width="100" height="40" stroke="#61dafb"/>
+  <text class="lbl" x="490" y="82">Mobile</text>
+
+  <!-- ═══ Connection: Clients → Gateway ═══ -->
+  <path class="conn" d="M 360 98 L 360 125 L 425 125 L 425 140"/>
+  <path class="conn" d="M 490 98 L 490 125 L 425 125 L 425 140"/>
+  <circle class="dot" r="3"><animateMotion path="M 360,98 L 360,125 L 425,125 L 425,140" dur="2.5s" repeatCount="indefinite"/></circle>
+  <circle class="dot" r="3"><animateMotion path="M 490,98 L 490,125 L 425,125 L 425,140" dur="3s" repeatCount="indefinite"/></circle>
+
+  <!-- ═══ ROW 2: API Gateway ═══ -->
+  <rect class="box" x="325" y="140" width="200" height="50" stroke="#3fb950"/>
+  <rect x="325" y="140" width="200" height="4" rx="8 8 0 0" fill="#3fb950"/>
+  <text class="lbl" x="425" y="165">API Gateway</text>
+  <text class="sub" x="425" y="180">Spring Boot</text>
+
+  <!-- ═══ Connection: Gateway → Auth (right) ═══ -->
+  <path class="conn" d="M 525 165 L 600 165 L 600 165"/>
+  <rect class="box" x="600" y="140" width="155" height="50" stroke="#bc8cff"/>
+  <rect x="600" y="140" width="155" height="4" rx="8 8 0 0" fill="#bc8cff"/>
+  <text class="lbl" x="677" y="165">Auth / RBAC</text>
+  <text class="sub" x="677" y="180">JWT + Spring Security</text>
+  <circle class="dot" r="2.5"><animateMotion path="M 525,165 L 600,165" dur="1.5s" repeatCount="indefinite"/></circle>
+
+  <!-- ═══ Connection: Gateway → Threat Intel (left-down) ═══ -->
+  <path class="conn" d="M 375 190 L 375 220 L 195 220 L 195 245"/>
+  <circle class="dot" r="3"><animateMotion path="M 375,190 L 375,220 L 195,220 L 195,245" dur="2s" repeatCount="indefinite"/></circle>
+
+  <!-- ═══ Connection: Gateway → Data Pipeline (right-down) ═══ -->
+  <path class="conn" d="M 475 190 L 475 220 L 620 220 L 620 245"/>
+  <circle class="dot" r="3"><animateMotion path="M 475,190 L 475,220 L 620,220 L 620,245" dur="2.2s" repeatCount="indefinite"/></circle>
+
+  <!-- ═══ ROW 3: Services ═══ -->
+  <!-- Threat Intel Service -->
+  <rect class="box" x="95" y="245" width="200" height="55" stroke="#00f0ff"/>
+  <rect x="95" y="245" width="200" height="4" rx="8 8 0 0" fill="#00f0ff"/>
+  <text class="lbl" x="195" y="272">Threat Intel</text>
+  <text class="sub" x="195" y="288">Correlation Engine</text>
+
+  <!-- Data Pipeline -->
+  <rect class="box" x="530" y="245" width="190" height="55" stroke="#f97316"/>
+  <rect x="530" y="245" width="190" height="4" rx="8 8 0 0" fill="#f97316"/>
+  <text class="lbl" x="625" y="272">Data Pipeline</text>
+  <text class="sub" x="625" y="288">Kafka Streams</text>
+
+  <!-- ═══ Connection: Threat Intel ↔ Data Pipeline (bidirectional) ═══ -->
+  <path class="conn" d="M 295 272 L 530 272" stroke-dasharray="6 4"/>
+  <circle class="dot" r="2" opacity="0.7"><animateMotion path="M 295,272 L 530,272" dur="3s" repeatCount="indefinite"/></circle>
+  <circle class="dot" r="2" opacity="0.7"><animateMotion path="M 530,272 L 295,272" dur="3.5s" repeatCount="indefinite"/></circle>
+
+  <!-- ═══ Connections: Services → Data Stores ═══ -->
+  <path class="conn" d="M 155 300 L 155 340"/>
+  <path class="conn" d="M 240 300 L 240 330 L 425 330 L 425 340"/>
+  <path class="conn" d="M 625 300 L 625 340"/>
+  <circle class="dot" r="2.5"><animateMotion path="M 155,300 L 155,340" dur="1.8s" repeatCount="indefinite"/></circle>
+  <circle class="dot" r="2.5"><animateMotion path="M 240,300 L 240,330 L 425,330 L 425,340" dur="2.5s" repeatCount="indefinite"/></circle>
+  <circle class="dot" r="2.5"><animateMotion path="M 625,300 L 625,340" dur="1.6s" repeatCount="indefinite"/></circle>
+
+  <!-- ═══ ROW 4: Data Stores ═══ -->
+  <!-- PostgreSQL -->
+  <rect class="box" x="80" y="340" width="150" height="50" stroke="#3b82f6"/>
+  <rect x="80" y="340" width="150" height="4" rx="8 8 0 0" fill="#3b82f6"/>
+  <text class="lbl" x="155" y="365">PostgreSQL</text>
+  <text class="sub" x="155" y="380">Primary Store</text>
+
+  <!-- Redis -->
+  <rect class="box" x="350" y="340" width="150" height="50" stroke="#ef4444"/>
+  <rect x="350" y="340" width="150" height="4" rx="8 8 0 0" fill="#ef4444"/>
+  <text class="lbl" x="425" y="365">Redis</text>
+  <text class="sub" x="425" y="380">Cache Layer</text>
+
+  <!-- Elasticsearch / Analytics -->
+  <rect class="box" x="555" y="340" width="150" height="50" stroke="#eab308"/>
+  <rect x="555" y="340" width="150" height="4" rx="8 8 0 0" fill="#eab308"/>
+  <text class="lbl" x="630" y="365">Analytics</text>
+  <text class="sub" x="630" y="380">AI/ML Processing</text>
+
+  <!-- ═══ Status indicator ═══ -->
+  <circle cx="425" cy="408" r="4" fill="#3fb950" class="pulse"/>
+  <text class="sub" x="425" y="412" fill="#3fb950">system operational</text>
+</svg>

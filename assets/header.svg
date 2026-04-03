@@ -81,9 +81,9 @@
     <text class="cmd" x="42" y="128">cat role.txt</text>
   </g>
   <g class="g4">
-    <text class="out" x="25" y="152">Full Stack Software Engineer</text>
-    <text class="out-hl" x="310" y="152">|</text>
-    <text class="out" x="325" y="152">Backend Specialist</text>
+    <text class="out" x="25" y="152">Full Stack Engineer</text>
+    <text class="out-hl" x="210" y="152">|</text>
+    <text class="out" x="225" y="152">Backend &amp; Cybersecurity</text>
   </g>
 
   <!-- Line 3: tech -->
@@ -92,19 +92,19 @@
     <text class="cmd" x="42" y="182">ls ~/tech-stack/</text>
   </g>
   <g class="g6">
-    <text class="out" x="25" y="206">Java</text>
-    <text class="comment" x="70" y="206">&#183;</text>
-    <text class="out" x="85" y="206">Python</text>
-    <text class="comment" x="147" y="206">&#183;</text>
-    <text class="out" x="162" y="206">Node.js</text>
-    <text class="comment" x="230" y="206">&#183;</text>
-    <text class="out" x="245" y="206">React</text>
-    <text class="comment" x="298" y="206">&#183;</text>
-    <text class="out" x="313" y="206">TypeScript</text>
-    <text class="comment" x="410" y="206">&#183;</text>
-    <text class="out" x="425" y="206">HTML</text>
-    <text class="comment" x="468" y="206">&#183;</text>
-    <text class="out" x="483" y="206">CSS</text>
+    <text class="out" x="25" y="206">Spring Boot</text>
+    <text class="comment" x="120" y="206">&#183;</text>
+    <text class="out" x="135" y="206">Java</text>
+    <text class="comment" x="175" y="206">&#183;</text>
+    <text class="out" x="190" y="206">Python</text>
+    <text class="comment" x="252" y="206">&#183;</text>
+    <text class="out" x="267" y="206">React</text>
+    <text class="comment" x="315" y="206">&#183;</text>
+    <text class="out" x="330" y="206">PostgreSQL</text>
+    <text class="comment" x="425" y="206">&#183;</text>
+    <text class="out" x="440" y="206">Kafka</text>
+    <text class="comment" x="483" y="206">&#183;</text>
+    <text class="out" x="498" y="206">Docker</text>
   </g>
 
   <!-- Line 4: status -->
@@ -113,7 +113,7 @@
     <text class="cmd" x="42" y="240">echo $STATUS</text>
   </g>
   <g class="g8">
-    <text class="out-green" x="25" y="264">Building scalable systems &amp; open to collaboration</text>
+    <text class="out-green" x="25" y="264">Building threat intel systems &amp; scalable APIs</text>
   </g>
 
   <!-- Blinking cursor -->
