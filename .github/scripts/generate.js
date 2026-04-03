@@ -240,6 +240,7 @@ function generateSnake(user) {
   const H = oy + gridH + 35;
   const cellColors = [C.c0, C.c1, C.c2, C.c3, C.c4];
   const half = cellSize / 2;
+  const MAX_BODY = 14;
 
   // ── Build grid ──
   const grid = Array.from({ length: cols }, () => Array(rows).fill(null));
@@ -254,95 +255,121 @@ function generateSnake(user) {
     }
   }
 
-  // ── Nearest-neighbor pathfinding ──
-  // Snake hunts only non-empty cells, walks grid to reach them
+  // ── Sort targets left-to-right so snake moves forward ──
+  targets.sort((a, b) => a.w - b.w || a.d - b.d);
+
+  // ── Build path ──
   function walkBetween(from, to) {
     const moves = [];
     let { w, d } = from;
-    // Move horizontally first, then vertically
-    while (w !== to.w) {
-      w += w < to.w ? 1 : -1;
-      moves.push({ w, d });
-    }
-    while (d !== to.d) {
-      d += d < to.d ? 1 : -1;
-      moves.push({ w, d });
-    }
+    while (w !== to.w) { w += w < to.w ? 1 : -1; moves.push({ w, d }); }
+    while (d !== to.d) { d += d < to.d ? 1 : -1; moves.push({ w, d }); }
     return moves;
   }
 
-  const remaining = [...targets];
-  const fullPath = [{ w: 0, d: rows - 1 }]; // start bottom-left
-  const eatStepMap = {}; // "w,d" -> step index when eaten
+  const startPos = { w: 0, d: rows - 1 };
 
-  let cur = fullPath[0];
-  while (remaining.length > 0) {
-    // Find nearest uneaten target
-    let bestIdx = 0, bestDist = Infinity;
-    for (let i = 0; i < remaining.length; i++) {
-      const t = remaining[i];
-      const dist = Math.abs(t.w - cur.w) + Math.abs(t.d - cur.d);
-      if (dist < bestDist) { bestDist = dist; bestIdx = i; }
-    }
-    const target = remaining.splice(bestIdx, 1)[0];
-    const walkSteps = walkBetween(cur, target);
-    fullPath.push(...walkSteps);
+  // Pad start so body segments begin gathered at start
+  const fullPath = [];
+  for (let i = 0; i < MAX_BODY; i++) fullPath.push({ ...startPos });
+
+  let cur = { ...startPos };
+  const eatStepMap = {}; // "w,d" -> step index
+
+  for (const target of targets) {
+    const walk = walkBetween(cur, target);
+    fullPath.push(...walk);
     eatStepMap[`${target.w},${target.d}`] = fullPath.length - 1;
-    cur = target;
+    cur = { w: target.w, d: target.d };
   }
 
-  // Return to start for seamless loop
-  const returnSteps = walkBetween(cur, { w: 0, d: rows - 1 });
-  fullPath.push(...returnSteps);
+  // Return to start
+  fullPath.push(...walkBetween(cur, startPos));
+  // End padding so body gathers before loop
+  for (let i = 0; i < MAX_BODY; i++) fullPath.push({ ...startPos });
 
   const totalSteps = fullPath.length;
-  const stepDur = 0.07; // seconds per step
+  const stepDur = 0.06;
   const duration = totalSteps * stepDur;
   const pctPerStep = 100 / totalSteps;
 
-  // ── Compress keyframes: merge consecutive same-direction moves ──
-  const keyframes = [{ step: 0, w: fullPath[0].w, d: fullPath[0].d }];
-  for (let i = 1; i < totalSteps; i++) {
-    const prev = fullPath[i - 1];
-    const curr = fullPath[i];
-    const next = fullPath[i + 1];
-    // Keep this point if direction changes or it's the last point
-    if (!next ||
-        (curr.w - prev.w) !== (next.w - curr.w) ||
-        (curr.d - prev.d) !== (next.d - curr.d)) {
-      keyframes.push({ step: i, w: curr.w, d: curr.d });
+  // ── Helper: compress a path into direction-change keyframes ──
+  function compressPath(pathArr) {
+    const out = [{ idx: 0, w: pathArr[0].w, d: pathArr[0].d }];
+    for (let i = 1; i < pathArr.length; i++) {
+      const prev = pathArr[i - 1], curr = pathArr[i], next = pathArr[i + 1];
+      if (!next ||
+          (curr.w - prev.w) !== (next.w - curr.w) ||
+          (curr.d - prev.d) !== (next.d - curr.d)) {
+        out.push({ idx: i, w: curr.w, d: curr.d });
+      }
+    }
+    return out;
+  }
+
+  // ── Per-segment movement keyframes ──
+  // Each body segment follows head with explicit offset
+  let allMoveKf = '';
+  for (let seg = 0; seg <= MAX_BODY; seg++) {
+    const segPath = fullPath.map((_, i) => fullPath[Math.max(0, i - seg)]);
+    const compressed = compressPath(segPath);
+    let kf = `@keyframes s${seg}{`;
+    compressed.forEach(p => {
+      const pct = (p.idx * pctPerStep).toFixed(3);
+      kf += `${pct}%{transform:translate(${ox + p.w * step}px,${oy + p.d * step}px)}`;
+    });
+    kf += `100%{transform:translate(${ox + startPos.w * step}px,${oy + startPos.d * step}px)}`;
+    kf += '}\n';
+    allMoveKf += kf;
+  }
+
+  // ── Growth keyframes: each segment appears when Nth cell is eaten ──
+  const eatPctsSorted = targets
+    .map(t => eatStepMap[`${t.w},${t.d}`])
+    .filter(s => s !== undefined)
+    .sort((a, b) => a - b)
+    .map(s => (s * pctPerStep).toFixed(3));
+
+  // Padding offset: first eatPct accounts for the start padding already
+  let growKf = '';
+  for (let seg = 1; seg <= MAX_BODY; seg++) {
+    const eatIdx = seg - 1; // segment 1 appears after 1st eat, 2 after 2nd, etc.
+    const baseOpacity = (1 - seg / MAX_BODY * 0.75).toFixed(2);
+    if (eatIdx < eatPctsSorted.length) {
+      const showPct = eatPctsSorted[eatIdx];
+      const showDone = Math.min(parseFloat(showPct) + 0.5, 95).toFixed(3);
+      // Visible from showPct until snake returns home (~92%), then fade for reset
+      growKf += `@keyframes g${seg}{` +
+        `0%,${showPct}%{opacity:0}` +
+        `${showDone}%{opacity:${baseOpacity}}` +
+        `92%{opacity:${baseOpacity}}` +
+        `96%{opacity:0}` +
+        `100%{opacity:0}` +
+        `}\n`;
+    } else {
+      // Not enough cells to grow this segment — keep hidden
+      growKf += `@keyframes g${seg}{0%,100%{opacity:0}}\n`;
     }
   }
 
-  // ── Generate snake movement CSS keyframes ──
-  let moveKf = '@keyframes snakeMove {\n';
-  keyframes.forEach(kf => {
-    const pct = (kf.step * pctPerStep).toFixed(4);
-    const px = ox + kf.w * step;
-    const py = oy + kf.d * step;
-    moveKf += `  ${pct}% { transform: translate(${px}px,${py}px); }\n`;
-  });
-  // Ensure 100% returns to start
-  moveKf += `  100% { transform: translate(${ox}px,${oy + (rows - 1) * step}px); }\n`;
-  moveKf += '}\n';
-
-  // ── Cell eat keyframes (one per target cell) ──
-  // Each cell: visible → flash cyan → shrink & vanish → stay gone → regenerate at loop end
+  // ── Cell eat keyframes ──
   let eatKf = '';
   targets.forEach(t => {
     const key = `${t.w},${t.d}`;
     const eatStep = eatStepMap[key];
     if (eatStep === undefined) return;
     const eatPct = (eatStep * pctPerStep).toFixed(3);
-    const flashPct = Math.min(parseFloat(eatPct) + 0.4, 99).toFixed(3);
-    const gonePct = Math.min(parseFloat(flashPct) + 0.6, 99).toFixed(3);
+    const flashPct = Math.min(parseFloat(eatPct) + 0.3, 95).toFixed(3);
+    const gonePct = Math.min(parseFloat(flashPct) + 0.5, 95).toFixed(3);
     const color = cellColors[t.level];
+    // Eaten cells become C.c0 (same as empty cells), NOT bg color
     eatKf += `@keyframes e${t.w}_${t.d}{` +
       `0%,${eatPct}%{fill:${color};transform:scale(1);opacity:1}` +
-      `${flashPct}%{fill:${C.cyan};transform:scale(1.5);opacity:1}` +
-      `${gonePct}%{fill:${C.bg};transform:scale(0);opacity:0}` +
-      `96%{fill:${C.bg};transform:scale(0);opacity:0}` +
-      `98%{fill:${color};transform:scale(0);opacity:0}` +
+      `${flashPct}%{fill:${C.cyan};transform:scale(1.4);opacity:1}` +
+      `${gonePct}%{fill:${C.c0};transform:scale(1);opacity:1}` +
+      `93%{fill:${C.c0};transform:scale(1);opacity:1}` +
+      `95%{fill:${C.c0};transform:scale(0.5);opacity:0.3}` +
+      `97%{fill:${color};transform:scale(0.5);opacity:0.3}` +
       `100%{fill:${color};transform:scale(1);opacity:1}` +
       `}\n`;
   });
@@ -354,10 +381,8 @@ function generateSnake(user) {
       const cell = grid[w][d];
       const x = ox + w * step;
       const y = oy + d * step;
-      const cx = x + half;
-      const cy = y + half;
       if (cell.level > 0 && eatStepMap[`${w},${d}`] !== undefined) {
-        // Animated cell: wrapped so scale transforms from center
+        const cx = x + half, cy = y + half;
         cellEls += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" fill="${cellColors[cell.level]}" style="animation:e${w}_${d} ${duration.toFixed(2)}s linear infinite;transform-origin:${cx}px ${cy}px"/>\n`;
       } else {
         cellEls += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" fill="${cellColors[cell.level]}"/>\n`;
@@ -365,40 +390,38 @@ function generateSnake(user) {
     }
   }
 
-  // ── Snake body segments ──
-  // Rendered back-to-front (tail first, head last) so head draws on top
-  const bodyLen = 16;
+  // ── Snake body (tail first → head last for z-order) ──
   let bodyEls = '';
+  const dur = duration.toFixed(2);
 
-  // Tail segments (furthest back → closest to head)
-  for (let i = bodyLen - 1; i >= 1; i--) {
-    const delay = -(i * stepDur);
-    const t = i / bodyLen;
-    const opacity = (1 - t * 0.8).toFixed(2);
+  for (let i = MAX_BODY; i >= 1; i--) {
+    const t = i / MAX_BODY;
     const radius = Math.max(1, Math.round(3 - t * 2));
-    // Color gradient: orange head → dark orange tail
-    const r = Math.round(249 - t * 130);
-    const g = Math.round(115 - t * 80);
-    const b = Math.round(22 - t * 10);
-    bodyEls += `<rect width="${cellSize}" height="${cellSize}" rx="${radius}" ` +
-      `fill="rgb(${r},${g},${b})" opacity="${opacity}" ` +
-      `style="animation:snakeMove ${duration.toFixed(2)}s linear infinite;` +
-      `animation-delay:${delay.toFixed(4)}s"/>\n`;
+    const r = Math.round(249 - t * 120);
+    const g = Math.round(115 - t * 70);
+    const b = Math.round(22 - t * 5);
+    // Movement via per-segment keyframes, visibility via growth keyframes
+    bodyEls += `<g style="animation:s${i} ${dur}s linear infinite">` +
+      `<rect width="${cellSize}" height="${cellSize}" rx="${radius}" ` +
+      `fill="rgb(${r},${g},${b})" ` +
+      `style="animation:g${i} ${dur}s linear infinite"/>` +
+      `</g>\n`;
   }
 
-  // Head (drawn last = on top)
-  bodyEls += `<g style="animation:snakeMove ${duration.toFixed(2)}s linear infinite">
-    <rect width="${cellSize}" height="${cellSize}" rx="3" fill="${C.orange}"/>
-    <rect x="1" y="1" width="${cellSize - 2}" height="${cellSize - 2}" rx="2" fill="#fb923c"/>
-    <circle cx="3.5" cy="4" r="1.5" fill="${C.bg}"/>
-    <circle cx="7.5" cy="4" r="1.5" fill="${C.bg}"/>
-    <circle cx="3.5" cy="4" r="0.6" fill="#fff"/>
-    <circle cx="7.5" cy="4" r="0.6" fill="#fff"/>
-  </g>\n`;
+  // Head (always visible, drawn last = on top)
+  bodyEls += `<g style="animation:s0 ${dur}s linear infinite">
+  <rect width="${cellSize}" height="${cellSize}" rx="3" fill="${C.orange}"/>
+  <rect x="1" y="1" width="${cellSize - 2}" height="${cellSize - 2}" rx="2" fill="#fb923c"/>
+  <circle cx="3.5" cy="4" r="1.5" fill="${C.bg}"/>
+  <circle cx="7.5" cy="4" r="1.5" fill="${C.bg}"/>
+  <circle cx="3.5" cy="4" r="0.6" fill="#fff"/>
+  <circle cx="7.5" cy="4" r="0.6" fill="#fff"/>
+</g>\n`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
 <style>
-${moveKf}
+${allMoveKf}
+${growKf}
 ${eatKf}
 .stitle{fill:${C.text};font-family:${FONT};font-size:16px;font-weight:bold;letter-spacing:1px}
 .ssub{fill:${C.muted};font-family:${FONT};font-size:11px}
