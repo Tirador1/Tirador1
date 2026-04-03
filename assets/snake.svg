@@ -41,7 +41,7 @@
 @keyframes e30_6{0%,35.256%{fill:#006d80;transform:scale(1);opacity:1}35.556%{fill:#00f0ff;transform:scale(1.4);opacity:1}36.056%{fill:#161b22;transform:scale(1);opacity:1}93%{fill:#161b22;transform:scale(1);opacity:1}95%{fill:#161b22;transform:scale(0.5);opacity:0.3}97%{fill:#006d80;transform:scale(0.5);opacity:0.3}100%{fill:#006d80;transform:scale(1);opacity:1}}
 @keyframes e33_6{0%,37.179%{fill:#00f0ff;transform:scale(1);opacity:1}37.479%{fill:#00f0ff;transform:scale(1.4);opacity:1}37.979%{fill:#161b22;transform:scale(1);opacity:1}93%{fill:#161b22;transform:scale(1);opacity:1}95%{fill:#161b22;transform:scale(0.5);opacity:0.3}97%{fill:#00f0ff;transform:scale(0.5);opacity:0.3}100%{fill:#00f0ff;transform:scale(1);opacity:1}}
 @keyframes e34_0{0%,41.667%{fill:#006d80;transform:scale(1);opacity:1}41.967%{fill:#00f0ff;transform:scale(1.4);opacity:1}42.467%{fill:#161b22;transform:scale(1);opacity:1}93%{fill:#161b22;transform:scale(1);opacity:1}95%{fill:#161b22;transform:scale(0.5);opacity:0.3}97%{fill:#006d80;transform:scale(0.5);opacity:0.3}100%{fill:#006d80;transform:scale(1);opacity:1}}
-@keyframes e52_5{0%,56.410%{fill:#006d80;transform:scale(1);opacity:1}56.710%{fill:#00f0ff;transform:scale(1.4);opacity:1}57.210%{fill:#161b22;transform:scale(1);opacity:1}93%{fill:#161b22;transform:scale(1);opacity:1}95%{fill:#161b22;transform:scale(0.5);opacity:0.3}97%{fill:#006d80;transform:scale(0.5);opacity:0.3}100%{fill:#006d80;transform:scale(1);opacity:1}}
+@keyframes e52_5{0%,56.410%{fill:#00a6bf;transform:scale(1);opacity:1}56.710%{fill:#00f0ff;transform:scale(1.4);opacity:1}57.210%{fill:#161b22;transform:scale(1);opacity:1}93%{fill:#161b22;transform:scale(1);opacity:1}95%{fill:#161b22;transform:scale(0.5);opacity:0.3}97%{fill:#00a6bf;transform:scale(0.5);opacity:0.3}100%{fill:#00a6bf;transform:scale(1);opacity:1}}
 
 .stitle{fill:#e6edf3;font-family:ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace;font-size:16px;font-weight:bold;letter-spacing:1px}
 .ssub{fill:#6e7681;font-family:ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace;font-size:11px}
@@ -418,7 +418,7 @@
 <rect x="783" y="78" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="783" y="92" width="11" height="11" rx="2" fill="#161b22"/>
 <rect x="783" y="106" width="11" height="11" rx="2" fill="#161b22"/>
-<rect x="783" y="120" width="11" height="11" rx="2" fill="#006d80" style="animation:e52_5 15.60s linear infinite;transform-origin:788.5px 125.5px"/>
+<rect x="783" y="120" width="11" height="11" rx="2" fill="#00a6bf" style="animation:e52_5 15.60s linear infinite;transform-origin:788.5px 125.5px"/>
 <rect x="783" y="134" width="11" height="11" rx="2" fill="#161b22"/>
 
 <g style="animation:s14 15.60s linear infinite"><rect width="11" height="11" rx="1" fill="rgb(129,45,17)" style="animation:g14 15.60s linear infinite"/></g>
