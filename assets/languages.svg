@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 378" width="850" height="378">
+  <style>
+    @keyframes rowIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes barGrow { from { width:0; } }
+    .lang-row { opacity:0; animation: rowIn 0.4s ease forwards; }
+    .bar { animation: barGrow 0.8s ease forwards; }
+    .head { fill:#e6edf3; font-family:ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size:16px; font-weight:bold; letter-spacing:1px; }
+  </style>
+  <rect width="850" height="378" rx="12" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+  <text class="head" x="425" y="28" text-anchor="middle">Languages</text>
+  <rect x="30" y="40" width="790" height="6" rx="3" fill="#161b22"/>
+  <rect x="30" y="40" width="586.18" height="6" fill="#f97316"/><rect x="616.18" y="40" width="109.02000000000001" height="6" fill="#ef4444"/><rect x="725.1999999999999" y="40" width="60.04" height="6" fill="#a855f7"/><rect x="785.2399999999999" y="40" width="19.75" height="6" fill="#eab308"/><rect x="804.9899999999999" y="40" width="9.48" height="6" fill="#3b82f6"/><rect x="814.4699999999999" y="40" width="3.16" height="6" fill="#6e7681"/><rect x="817.6299999999999" y="40" width="2.37" height="6" fill="#e879f9"/><rect x="819.9999999999999" y="40" width="0.79" height="6" fill="#6ee7b7"/>
+  
+    <g class="lang-row" style="animation-delay:0.00s">
+      <circle cx="30" cy="66" r="4" fill="#f97316"/>
+      <text x="44" y="70" fill="#e6edf3" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="13">JavaScript</text>
+      <rect x="160" y="60" width="480" height="10" rx="5" fill="#161b22"/>
+      <rect x="160" y="60" width="356.15999999999997" height="10" rx="5" fill="#f97316" class="bar" style="animation-delay:0.30s">
+        <title>JavaScript: 74.2%</title>
+      </rect>
+      <text x="670" y="70" fill="#6e7681" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="12" text-anchor="end">74.2%</text>
+    </g>
+    <g class="lang-row" style="animation-delay:0.10s">
+      <circle cx="30" cy="102" r="4" fill="#ef4444"/>
+      <text x="44" y="106" fill="#e6edf3" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="13">HTML</text>
+      <rect x="160" y="96" width="480" height="10" rx="5" fill="#161b22"/>
+      <rect x="160" y="96" width="66.24000000000001" height="10" rx="5" fill="#ef4444" class="bar" style="animation-delay:0.40s">
+        <title>HTML: 13.8%</title>
+      </rect>
+      <text x="670" y="106" fill="#6e7681" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="12" text-anchor="end">13.8%</text>
+    </g>
+    <g class="lang-row" style="animation-delay:0.20s">
+      <circle cx="30" cy="138" r="4" fill="#a855f7"/>
+      <text x="44" y="142" fill="#e6edf3" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="13">CSS</text>
+      <rect x="160" y="132" width="480" height="10" rx="5" fill="#161b22"/>
+      <rect x="160" y="132" width="36.48" height="10" rx="5" fill="#a855f7" class="bar" style="animation-delay:0.50s">
+        <title>CSS: 7.6%</title>
+      </rect>
+      <text x="670" y="142" fill="#6e7681" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="12" text-anchor="end">7.6%</text>
+    </g>
+    <g class="lang-row" style="animation-delay:0.30s">
+      <circle cx="30" cy="174" r="4" fill="#eab308"/>
+      <text x="44" y="178" fill="#e6edf3" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="13">Java</text>
+      <rect x="160" y="168" width="480" height="10" rx="5" fill="#161b22"/>
+      <rect x="160" y="168" width="12" height="10" rx="5" fill="#eab308" class="bar" style="animation-delay:0.60s">
+        <title>Java: 2.5%</title>
+      </rect>
+      <text x="670" y="178" fill="#6e7681" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="12" text-anchor="end">2.5%</text>
+    </g>
+    <g class="lang-row" style="animation-delay:0.40s">
+      <circle cx="30" cy="210" r="4" fill="#3b82f6"/>
+      <text x="44" y="214" fill="#e6edf3" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="13">TypeScript</text>
+      <rect x="160" y="204" width="480" height="10" rx="5" fill="#161b22"/>
+      <rect x="160" y="204" width="5.76" height="10" rx="5" fill="#3b82f6" class="bar" style="animation-delay:0.70s">
+        <title>TypeScript: 1.2%</title>
+      </rect>
+      <text x="670" y="214" fill="#6e7681" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="12" text-anchor="end">1.2%</text>
+    </g>
+    <g class="lang-row" style="animation-delay:0.50s">
+      <circle cx="30" cy="246" r="4" fill="#6e7681"/>
+      <text x="44" y="250" fill="#e6edf3" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="13">Jupyter Notebook</text>
+      <rect x="160" y="240" width="480" height="10" rx="5" fill="#161b22"/>
+      <rect x="160" y="240" width="1.92" height="10" rx="5" fill="#6e7681" class="bar" style="animation-delay:0.80s">
+        <title>Jupyter Notebook: 0.4%</title>
+      </rect>
+      <text x="670" y="250" fill="#6e7681" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="12" text-anchor="end">0.4%</text>
+    </g>
+    <g class="lang-row" style="animation-delay:0.60s">
+      <circle cx="30" cy="282" r="4" fill="#e879f9"/>
+      <text x="44" y="286" fill="#e6edf3" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="13">SCSS</text>
+      <rect x="160" y="276" width="480" height="10" rx="5" fill="#161b22"/>
+      <rect x="160" y="276" width="1.44" height="10" rx="5" fill="#e879f9" class="bar" style="animation-delay:0.90s">
+        <title>SCSS: 0.3%</title>
+      </rect>
+      <text x="670" y="286" fill="#6e7681" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="12" text-anchor="end">0.3%</text>
+    </g>
+    <g class="lang-row" style="animation-delay:0.70s">
+      <circle cx="30" cy="318" r="4" fill="#6ee7b7"/>
+      <text x="44" y="322" fill="#e6edf3" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="13">Shell</text>
+      <rect x="160" y="312" width="480" height="10" rx="5" fill="#161b22"/>
+      <rect x="160" y="312" width="0.48" height="10" rx="5" fill="#6ee7b7" class="bar" style="animation-delay:1.00s">
+        <title>Shell: 0.1%</title>
+      </rect>
+      <text x="670" y="322" fill="#6e7681" font-family="ui-monospace, 'Cascadia Code', 'Fira Code', 'Courier New', monospace" font-size="12" text-anchor="end">0.1%</text>
+    </g>
+</svg>
