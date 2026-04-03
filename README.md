@@ -9,9 +9,9 @@
 
 <!-- ═══════════════════ CONNECT ═══════════════════ -->
 
-[![Gmail](https://img.shields.io/badge/ahmad0abdulmajid@gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ahmad0abdulmajid@gmail.com)&nbsp;
-[![LinkedIn](https://img.shields.io/badge/Ahmad_Abdulmajid-0A66C2?style=for-the-badge&logo=LinkedIn&logoColor=white)](https://www.linkedin.com/in/ahmadabdulmajid)&nbsp;
-[![GitHub](https://img.shields.io/badge/Tirador1-181717?style=for-the-badge&logo=GitHub&logoColor=white)](https://github.com/Tirador1)
+<a href="mailto:ahmad0abdulmajid@gmail.com">
+  <img src="./assets/contact.svg" width="580" alt="Contact: Gmail | LinkedIn | GitHub"/>
+</a>
 
 <br/>
 
