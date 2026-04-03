@@ -83,7 +83,7 @@
   <g class="g4">
     <text class="out" x="25" y="152">Full Stack Engineer</text>
     <text class="out-hl" x="210" y="152">|</text>
-    <text class="out" x="225" y="152">Backend &amp; Cybersecurity</text>
+    <text class="out" x="225" y="152">Backend Specialist</text>
   </g>
 
   <!-- Line 3: tech -->
@@ -113,7 +113,7 @@
     <text class="cmd" x="42" y="240">echo $STATUS</text>
   </g>
   <g class="g8">
-    <text class="out-green" x="25" y="264">Building threat intel systems &amp; scalable APIs</text>
+    <text class="out-green" x="25" y="264">Building scalable systems &amp; high-performance APIs</text>
   </g>
 
   <!-- Blinking cursor -->

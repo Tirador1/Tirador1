@@ -14,7 +14,7 @@
     .fn{font-family:ui-monospace,'Fira Code',monospace;font-size:11px}
     .kw{fill:#bc8cff}.str{fill:#a5d6ff}.cm{fill:#6e7681;font-style:italic}
     .tp{fill:#ff7b72}.an{fill:#d2a8ff}.mt{fill:#79c0ff}.tx{fill:#e6edf3}
-    .nm{fill:#ffa657}.pk{fill:#ff7b72}.op{fill:#e6edf3}
+    .nm{fill:#ffa657}.op{fill:#e6edf3}
     .cur{fill:#00f0ff;animation:blink 1s step-end infinite}
     .l1{opacity:0;animation:typeIn .2s ease forwards;animation-delay:.3s}
     .l2{opacity:0;animation:typeIn .2s ease forwards;animation-delay:.6s}
@@ -33,124 +33,87 @@
     .l15{opacity:0;animation:typeIn .2s ease forwards;animation-delay:3.9s}
     .l16{opacity:0;animation:typeIn .2s ease forwards;animation-delay:4.2s}
     .l17{opacity:0;animation:typeIn .2s ease forwards;animation-delay:4.5s}
-    .l18{opacity:0;animation:typeIn .2s ease forwards;animation-delay:4.8s}
   </style>
 
-  <!-- Terminal frame -->
   <rect class="bg" x=".5" y=".5" width="849" height="339" rx="12"/>
   <rect class="tbar" x="1" y="1" width="848" height="36" rx="12 12 0 0"/>
   <rect class="tbar" x="1" y="25" width="848" height="12"/>
   <line x1="1" y1="37" x2="849" y2="37" stroke="#30363d" stroke-width=".5"/>
   <circle class="dr" cx="22" cy="19" r="6"/><circle class="dy" cx="42" cy="19" r="6"/><circle class="dg" cx="62" cy="19" r="6"/>
-  <text class="tt" x="425" y="23" text-anchor="middle">ThreatController.java</text>
+  <text class="tt" x="425" y="23" text-anchor="middle">OrderController.java</text>
 
-  <!-- Line numbers gutter -->
   <rect x="1" y="37" width="35" height="303" fill="#161b22" rx="0 0 0 12"/>
 
-  <!-- Code content -->
-  <g class="fn" transform="translate(0,0)">
-    <!-- Line 1: comment -->
+  <g class="fn">
     <g class="l1">
       <text class="cm" x="15" y="58" font-size="10">1</text>
-      <text class="cm" x="45" y="58">// Threat Intelligence REST API</text>
+      <text class="cm" x="45" y="58">// REST API - Order Processing</text>
     </g>
-
-    <!-- Line 2: annotation -->
     <g class="l2">
       <text class="cm" x="15" y="74" font-size="10">2</text>
       <text class="an" x="45" y="74">@RestController</text>
     </g>
-
-    <!-- Line 3: annotation -->
     <g class="l3">
       <text class="cm" x="15" y="90" font-size="10">3</text>
-      <text class="an" x="45" y="90">@RequestMapping</text><text class="op" x="163" y="90">(</text><text class="str" x="170" y="90">"/api/v1/threats"</text><text class="op" x="310" y="90">)</text>
+      <text class="an" x="45" y="90">@RequestMapping</text><text class="op" x="163" y="90">(</text><text class="str" x="170" y="90">"/api/v1/orders"</text><text class="op" x="303" y="90">)</text>
     </g>
-
-    <!-- Line 4: class declaration -->
     <g class="l4">
       <text class="cm" x="15" y="106" font-size="10">4</text>
       <text class="kw" x="45" y="106">public class</text>
-      <text class="tp" x="130" y="106">ThreatController</text>
-      <text class="op" x="270" y="106">{</text>
+      <text class="tp" x="130" y="106">OrderController</text>
+      <text class="op" x="257" y="106">{</text>
     </g>
-
-    <!-- Line 5: blank -->
     <g class="l5">
       <text class="cm" x="15" y="122" font-size="10">5</text>
     </g>
-
-    <!-- Line 6: annotation -->
     <g class="l6">
       <text class="cm" x="15" y="138" font-size="10">6</text>
-      <text class="an" x="70" y="138">@PostMapping</text><text class="op" x="167" y="138">(</text><text class="str" x="174" y="138">"/analyze"</text><text class="op" x="260" y="138">)</text>
+      <text class="an" x="70" y="138">@PostMapping</text><text class="op" x="167" y="138">(</text><text class="str" x="174" y="138">"/process"</text><text class="op" x="255" y="138">)</text>
     </g>
-
-    <!-- Line 7: method signature -->
     <g class="l7">
       <text class="cm" x="15" y="154" font-size="10">7</text>
       <text class="kw" x="70" y="154">public</text>
-      <text class="tp" x="118" y="154">ResponseEntity</text><text class="op" x="220" y="154">&lt;</text><text class="tp" x="228" y="154">ThreatReport</text><text class="op" x="316" y="154">&gt;</text>
-      <text class="mt" x="328" y="154">analyze</text><text class="op" x="376" y="154">(</text>
+      <text class="tp" x="118" y="154">ResponseEntity</text><text class="op" x="220" y="154">&lt;</text><text class="tp" x="228" y="154">OrderResult</text><text class="op" x="308" y="154">&gt;</text>
+      <text class="mt" x="320" y="154">process</text><text class="op" x="370" y="154">(</text>
     </g>
-
-    <!-- Line 8: param -->
     <g class="l8">
       <text class="cm" x="15" y="170" font-size="10">8</text>
       <text class="an" x="95" y="170">@RequestBody</text>
-      <text class="tp" x="195" y="170">ThreatData</text>
-      <text class="nm" x="275" y="170">data</text><text class="op" x="303" y="170">) {</text>
+      <text class="tp" x="195" y="170">OrderRequest</text>
+      <text class="nm" x="285" y="170">request</text><text class="op" x="338" y="170">) {</text>
     </g>
-
-    <!-- Line 9: blank -->
     <g class="l9"><text class="cm" x="15" y="186" font-size="10">9</text></g>
-
-    <!-- Line 10: correlation -->
     <g class="l10">
       <text class="cm" x="10" y="202" font-size="10">10</text>
       <text class="kw" x="95" y="202">var</text>
-      <text class="nm" x="120" y="202">threats</text>
-      <text class="op" x="168" y="202">=</text>
-      <text class="tx" x="180" y="202">pipeline</text><text class="op" x="234" y="202">.</text><text class="mt" x="240" y="202">correlate</text><text class="op" x="300" y="202">(</text><text class="nm" x="307" y="202">data</text><text class="op" x="334" y="202">);</text>
+      <text class="nm" x="120" y="202">result</text>
+      <text class="op" x="162" y="202">=</text>
+      <text class="tx" x="174" y="202">service</text><text class="op" x="220" y="202">.</text><text class="mt" x="226" y="202">validate</text><text class="op" x="280" y="202">(</text><text class="nm" x="287" y="202">request</text><text class="op" x="340" y="202">);</text>
     </g>
-
-    <!-- Line 11: cache -->
     <g class="l11">
       <text class="cm" x="10" y="218" font-size="10">11</text>
-      <text class="tx" x="95" y="218">redis</text><text class="op" x="127" y="218">.</text><text class="mt" x="133" y="218">cache</text><text class="op" x="165" y="218">(</text><text class="nm" x="172" y="218">data</text><text class="op" x="200" y="218">.</text><text class="mt" x="206" y="218">getId</text><text class="op" x="240" y="218">(),</text>
-      <text class="nm" x="260" y="218">threats</text><text class="op" x="308" y="218">);</text>
+      <text class="tx" x="95" y="218">redis</text><text class="op" x="127" y="218">.</text><text class="mt" x="133" y="218">cache</text><text class="op" x="165" y="218">(</text><text class="nm" x="172" y="218">request</text><text class="op" x="225" y="218">.</text><text class="mt" x="231" y="218">getId</text><text class="op" x="265" y="218">(),</text>
+      <text class="nm" x="283" y="218">result</text><text class="op" x="320" y="218">);</text>
     </g>
-
-    <!-- Line 12: kafka publish -->
     <g class="l12">
       <text class="cm" x="10" y="234" font-size="10">12</text>
-      <text class="tx" x="95" y="234">kafka</text><text class="op" x="130" y="234">.</text><text class="mt" x="136" y="234">publish</text><text class="op" x="184" y="234">(</text><text class="str" x="191" y="234">"threat-events"</text><text class="op" x="315" y="234">,</text>
-      <text class="nm" x="325" y="234">threats</text><text class="op" x="373" y="234">);</text>
+      <text class="tx" x="95" y="234">kafka</text><text class="op" x="130" y="234">.</text><text class="mt" x="136" y="234">publish</text><text class="op" x="184" y="234">(</text><text class="str" x="191" y="234">"order-events"</text><text class="op" x="308" y="234">,</text>
+      <text class="nm" x="318" y="234">result</text><text class="op" x="355" y="234">);</text>
     </g>
-
-    <!-- Line 13: blank -->
     <g class="l13"><text class="cm" x="10" y="250" font-size="10">13</text></g>
-
-    <!-- Line 14: return -->
     <g class="l14">
       <text class="cm" x="10" y="266" font-size="10">14</text>
       <text class="kw" x="95" y="266">return</text>
-      <text class="tp" x="142" y="266">ResponseEntity</text><text class="op" x="244" y="266">.</text><text class="mt" x="250" y="266">ok</text><text class="op" x="266" y="266">(</text><text class="nm" x="273" y="266">threats</text><text class="op" x="321" y="266">);</text>
+      <text class="tp" x="142" y="266">ResponseEntity</text><text class="op" x="244" y="266">.</text><text class="mt" x="250" y="266">ok</text><text class="op" x="266" y="266">(</text><text class="nm" x="273" y="266">result</text><text class="op" x="310" y="266">);</text>
     </g>
-
-    <!-- Line 15: close method -->
     <g class="l15">
       <text class="cm" x="10" y="282" font-size="10">15</text>
       <text class="op" x="70" y="282">}</text>
     </g>
-
-    <!-- Line 16: close class -->
     <g class="l16">
       <text class="cm" x="10" y="298" font-size="10">16</text>
       <text class="op" x="45" y="298">}</text>
     </g>
-
-    <!-- Line 17: cursor -->
     <g class="l17">
       <text class="cm" x="10" y="314" font-size="10">17</text>
       <rect class="cur" x="45" y="303" width="8" height="14" rx="1"/>

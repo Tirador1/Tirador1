@@ -2,28 +2,28 @@
 
 <!-- ═══════════════════ HEADER ═══════════════════ -->
 <a href="https://github.com/Tirador1">
-  <img src="./assets/header.svg" width="100%" alt="Ahmad Abdulmajid - Full Stack Engineer | Backend & Cybersecurity"/>
+  <img src="./assets/header.svg" width="100%" alt="Ahmad Abdulmajid - Full Stack Engineer | Backend Specialist"/>
 </a>
 
 <br/>
 
 <!-- ═══════════════════ CONNECT ═══════════════════ -->
 
-[<img src="https://img.shields.io/badge/Gmail-D14836?style=flat-square&logo=gmail&logoColor=white" height="25"/>](mailto:ahmad0abdulmajid@gmail.com)&nbsp;&nbsp;
-[<img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white" height="25"/>](https://www.linkedin.com/in/ahmadabdulmajid)&nbsp;&nbsp;
-[<img src="https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=github&logoColor=white" height="25"/>](https://github.com/Tirador1)
+[![Gmail](https://img.shields.io/badge/ahmad0abdulmajid@gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ahmad0abdulmajid@gmail.com)&nbsp;
+[![LinkedIn](https://img.shields.io/badge/Ahmad_Abdulmajid-0A66C2?style=for-the-badge&logo=LinkedIn&logoColor=white)](https://www.linkedin.com/in/ahmadabdulmajid)&nbsp;
+[![GitHub](https://img.shields.io/badge/Tirador1-181717?style=for-the-badge&logo=GitHub&logoColor=white)](https://github.com/Tirador1)
 
 <br/>
 
 <!-- ═══════════════════ ABOUT ═══════════════════ -->
 
 ```
- I build cybersecurity platforms and threat intelligence systems
- that process massive datasets, correlate identities across networks,
- and enforce fine-grained access control over sensitive information.
+ I design and build production-grade backend systems —
+ scalable microservices, data pipelines, and REST APIs
+ that handle real-world complexity at scale.
 
- My stack: Spring Boot microservices, Kafka pipelines, PostgreSQL,
- Redis caching, and React frontends — all built for scale and security.
+ My stack: Spring Boot, Kafka, PostgreSQL, Redis, Docker,
+ with React & TypeScript on the frontend.
 ```
 
 <br/>

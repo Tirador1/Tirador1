@@ -158,21 +158,16 @@ function generateStats(user) {
 </svg>`;
 }
 
-// ── Languages SVG ──────────────────────────────────────────
+// ── Languages SVG (Donut Chart + Legend) ───────────────────
 function generateLanguages(user) {
-  // Aggregate language bytes across repos
   const langMap = {};
   user.repositories.nodes.forEach(repo => {
     repo.languages.edges.forEach(edge => {
-      const name = edge.node.name;
-      langMap[name] = (langMap[name] || 0) + edge.size;
+      langMap[edge.node.name] = (langMap[edge.node.name] || 0) + edge.size;
     });
   });
 
-  // Sort and take top 8
-  const sorted = Object.entries(langMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8);
+  const sorted = Object.entries(langMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
   const total = sorted.reduce((s, [, v]) => s + v, 0);
   const langs = sorted.map(([name, bytes]) => ({
     name,
@@ -180,49 +175,75 @@ function generateLanguages(user) {
     color: C.lang[name] || C.lang.Other,
   }));
 
-  const W = 850, barW = 480, barH = 10, lineH = 36;
-  const H = 60 + langs.length * lineH + 30;
-  const labelX = 30, barX = 160, pctX = 670;
+  const W = 850, H = 280;
+  // Donut params
+  const donutCx = 200, donutCy = 160, R = 85, strokeW = 22;
+  const circumference = 2 * Math.PI * R;
 
-  let bars = '';
+  // Build donut segments
+  let donutSegs = '';
+  let offset = 0;
   langs.forEach((l, i) => {
-    const y = 60 + i * lineH;
-    const w = (l.pct / 100) * barW;
-    const delay = (i * 0.1).toFixed(2);
-    bars += `
-    <g class="lang-row" style="animation-delay:${delay}s">
-      <circle cx="${labelX}" cy="${y + 6}" r="4" fill="${l.color}"/>
-      <text x="${labelX + 14}" y="${y + 10}" fill="${C.text}" font-family="${FONT}" font-size="13">${l.name}</text>
-      <rect x="${barX}" y="${y}" width="${barW}" height="${barH}" rx="5" fill="${C.card}"/>
-      <rect x="${barX}" y="${y}" width="${w}" height="${barH}" rx="5" fill="${l.color}" class="bar" style="animation-delay:${(i * 0.1 + 0.3).toFixed(2)}s">
-        <title>${l.name}: ${l.pct}%</title>
-      </rect>
-      <text x="${pctX}" y="${y + 10}" fill="${C.muted}" font-family="${FONT}" font-size="12" text-anchor="end">${l.pct}%</text>
-    </g>`;
+    const segLen = (parseFloat(l.pct) / 100) * circumference;
+    const gap = 4; // gap between segments
+    const actualLen = Math.max(0, segLen - gap);
+    const delay = (i * 0.15).toFixed(2);
+    donutSegs += `<circle cx="${donutCx}" cy="${donutCy}" r="${R}" fill="none" ` +
+      `stroke="${l.color}" stroke-width="${strokeW}" ` +
+      `stroke-dasharray="${actualLen} ${circumference - actualLen}" ` +
+      `stroke-dashoffset="${-offset}" ` +
+      `transform="rotate(-90 ${donutCx} ${donutCy})" ` +
+      `class="seg" style="animation-delay:${delay}s"/>\n`;
+    offset += segLen;
   });
 
-  // Composition bar at the top
-  let compBar = '', cx = 30;
-  const compW = W - 60;
-  langs.forEach(l => {
-    const w = (l.pct / 100) * compW;
-    compBar += `<rect x="${cx}" y="40" width="${w}" height="6" fill="${l.color}"/>`;
-    cx += w;
+  // Center text
+  const totalPct = langs.reduce((s, l) => s + parseFloat(l.pct), 0).toFixed(0);
+
+  // Legend (right side)
+  let legend = '';
+  const legX = 400, legStartY = 75;
+  const legLineH = 32;
+  langs.forEach((l, i) => {
+    const y = legStartY + i * legLineH;
+    const delay = (i * 0.12).toFixed(2);
+    // Color dot
+    legend += `<g class="leg" style="animation-delay:${delay}s">`;
+    legend += `<rect x="${legX}" y="${y - 8}" width="12" height="12" rx="3" fill="${l.color}"/>`;
+    legend += `<text x="${legX + 22}" y="${y + 3}" fill="${C.text}" font-family="${FONT}" font-size="13">${l.name}</text>`;
+    // Percentage bar (mini)
+    const barW = 180;
+    const bw = (parseFloat(l.pct) / 100) * barW;
+    legend += `<rect x="${legX + 150}" y="${y - 4}" width="${barW}" height="8" rx="4" fill="${C.card}"/>`;
+    legend += `<rect x="${legX + 150}" y="${y - 4}" width="${bw}" height="8" rx="4" fill="${l.color}" class="minibar" style="animation-delay:${(i * 0.12 + 0.3).toFixed(2)}s"/>`;
+    legend += `<text x="${legX + 150 + barW + 12}" y="${y + 3}" fill="${l.color}" font-family="${FONT}" font-size="12" font-weight="bold">${l.pct}%</text>`;
+    legend += `</g>\n`;
   });
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-  <style>
-    @keyframes rowIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
-    @keyframes barGrow { from { width:0; } }
-    .lang-row { opacity:0; animation: rowIn 0.4s ease forwards; }
-    .bar { animation: barGrow 0.8s ease forwards; }
-    .head { fill:${C.text}; font-family:${FONT}; font-size:16px; font-weight:bold; letter-spacing:1px; }
-  </style>
-  <rect width="${W}" height="${H}" rx="12" fill="${C.bg}" stroke="${C.border}" stroke-width="1"/>
-  <text class="head" x="${W/2}" y="28" text-anchor="middle">Languages</text>
-  <rect x="30" y="40" width="${compW}" height="6" rx="3" fill="${C.card}"/>
-  ${compBar}
-  ${bars}
+<style>
+  @keyframes segGrow{from{stroke-dasharray:0 ${circumference.toFixed(1)}}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes barIn{from{width:0}}
+  .seg{animation:segGrow 1s ease forwards}
+  .leg{opacity:0;animation:fadeUp .4s ease forwards}
+  .minibar{animation:barIn .6s ease forwards}
+  .title{fill:${C.text};font-family:${FONT};font-size:16px;font-weight:bold;letter-spacing:1px;text-anchor:middle}
+  .sub{fill:${C.muted};font-family:${FONT};font-size:11px;text-anchor:middle}
+  .center-num{fill:${C.cyan};font-family:${FONT};font-size:28px;font-weight:bold;text-anchor:middle}
+  .center-lbl{fill:${C.muted};font-family:${FONT};font-size:10px;text-anchor:middle}
+</style>
+<rect width="${W}" height="${H}" rx="12" fill="${C.bg}" stroke="${C.border}" stroke-width="1"/>
+<text class="title" x="${W/2}" y="28">Languages</text>
+<text class="sub" x="${W/2}" y="44">By repository composition</text>
+<!-- Donut background -->
+<circle cx="${donutCx}" cy="${donutCy}" r="${R}" fill="none" stroke="${C.card}" stroke-width="${strokeW}"/>
+${donutSegs}
+<!-- Center label -->
+<text class="center-num" x="${donutCx}" y="${donutCy + 4}">${langs.length}</text>
+<text class="center-lbl" x="${donutCx}" y="${donutCy + 18}">languages</text>
+<!-- Legend -->
+${legend}
 </svg>`;
 }
 

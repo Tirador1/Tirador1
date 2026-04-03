@@ -58,8 +58,8 @@
   <!-- Threat Intel Service -->
   <rect class="box" x="95" y="245" width="200" height="55" stroke="#00f0ff"/>
   <rect x="95" y="245" width="200" height="4" rx="8 8 0 0" fill="#00f0ff"/>
-  <text class="lbl" x="195" y="272">Threat Intel</text>
-  <text class="sub" x="195" y="288">Correlation Engine</text>
+  <text class="lbl" x="195" y="272">Core Service</text>
+  <text class="sub" x="195" y="288">Business Logic</text>
 
   <!-- Data Pipeline -->
   <rect class="box" x="530" y="245" width="190" height="55" stroke="#f97316"/>
@@ -96,8 +96,8 @@
   <!-- Elasticsearch / Analytics -->
   <rect class="box" x="555" y="340" width="150" height="50" stroke="#eab308"/>
   <rect x="555" y="340" width="150" height="4" rx="8 8 0 0" fill="#eab308"/>
-  <text class="lbl" x="630" y="365">Analytics</text>
-  <text class="sub" x="630" y="380">AI/ML Processing</text>
+  <text class="lbl" x="630" y="365">Search</text>
+  <text class="sub" x="630" y="380">Analytics Engine</text>
 
   <!-- ═══ Status indicator ═══ -->
   <circle cx="425" cy="408" r="4" fill="#3fb950" class="pulse"/>
