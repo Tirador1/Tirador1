@@ -276,16 +276,72 @@ function generateSnake(user) {
     }
   }
 
-  // ── Sort targets left-to-right so snake moves forward ──
-  targets.sort((a, b) => a.w - b.w || a.d - b.d);
+  // ── Seeded PRNG (mulberry32) for deterministic shuffle ──
+  function mulberry32(seed) {
+    let s = seed | 0;
+    return function () {
+      s = (s + 0x6D2B79F5) | 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
 
-  // ── Build path ──
-  function walkBetween(from, to) {
+  // Shuffle targets randomly (seeded by total contributions for reproducibility)
+  const totalContribs = user.contributionsCollection.contributionCalendar.totalContributions;
+  const rng = mulberry32(totalContribs || 42);
+  for (let i = targets.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [targets[i], targets[j]] = [targets[j], targets[i]];
+  }
+
+  // ── Naive fallback walk (Manhattan, no body awareness) ──
+  function walkBetweenNaive(from, to) {
     const moves = [];
     let { w, d } = from;
     while (w !== to.w) { w += w < to.w ? 1 : -1; moves.push({ w, d }); }
     while (d !== to.d) { d += d < to.d ? 1 : -1; moves.push({ w, d }); }
     return moves;
+  }
+
+  // ── BFS pathfinding with body avoidance ──
+  function bfsPath(from, to, bodySet) {
+    if (from.w === to.w && from.d === to.d) return [];
+    const key = (w, d) => `${w},${d}`;
+    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const queue = [[from.w, from.d]];
+    const visited = new Set([key(from.w, from.d)]);
+    const parent = new Map();
+
+    while (queue.length > 0) {
+      const [cw, cd] = queue.shift();
+      for (const [dw, dd] of dirs) {
+        const nw = cw + dw, nd = cd + dd;
+        const nk = key(nw, nd);
+        // Bounds: allow one column past grid for exit paths
+        if (nw < 0 || nw > cols || nd < 0 || nd >= rows) continue;
+        if (visited.has(nk)) continue;
+        // Allow the target cell itself, block body cells
+        if (bodySet.has(nk) && !(nw === to.w && nd === to.d)) continue;
+        visited.add(nk);
+        parent.set(nk, [cw, cd]);
+        if (nw === to.w && nd === to.d) {
+          // Reconstruct path (excluding `from`)
+          const path = [];
+          let c = [nw, nd];
+          while (c) {
+            path.push({ w: c[0], d: c[1] });
+            const pk = parent.get(key(c[0], c[1]));
+            if (!pk || (pk[0] === from.w && pk[1] === from.d)) break;
+            c = pk;
+          }
+          path.reverse();
+          return path;
+        }
+        queue.push([nw, nd]);
+      }
+    }
+    return null; // No path found
   }
 
   const startPos = { w: 0, d: rows - 1 };
@@ -297,15 +353,29 @@ function generateSnake(user) {
   let cur = { ...startPos };
   const eatStepMap = {}; // "w,d" -> step index
 
+  const reachable = []; // track which targets the snake actually eats
   for (const target of targets) {
-    const walk = walkBetween(cur, target);
+    // Compute current body positions to avoid
+    const bodySet = new Set();
+    for (let b = Math.max(0, fullPath.length - MAX_BODY); b < fullPath.length; b++) {
+      bodySet.add(`${fullPath[b].w},${fullPath[b].d}`);
+    }
+    const walk = bfsPath(cur, target, bodySet);
+    if (walk === null) continue; // skip — snake is boxed in, avoid self-overlap
     fullPath.push(...walk);
     eatStepMap[`${target.w},${target.d}`] = fullPath.length - 1;
+    reachable.push(target);
     cur = { w: target.w, d: target.d };
   }
 
-  // Return to start
-  fullPath.push(...walkBetween(cur, startPos));
+  // Return to start for infinite loop
+  const returnBodySet = new Set();
+  for (let b = Math.max(0, fullPath.length - MAX_BODY); b < fullPath.length; b++) {
+    returnBodySet.add(`${fullPath[b].w},${fullPath[b].d}`);
+  }
+  let returnWalk = bfsPath(cur, startPos, returnBodySet);
+  if (returnWalk === null) returnWalk = walkBetweenNaive(cur, startPos);
+  fullPath.push(...returnWalk);
   // End padding so body gathers before loop
   for (let i = 0; i < MAX_BODY; i++) fullPath.push({ ...startPos });
 
@@ -345,7 +415,7 @@ function generateSnake(user) {
   }
 
   // ── Growth keyframes: each segment appears when Nth cell is eaten ──
-  const eatPctsSorted = targets
+  const eatPctsSorted = reachable
     .map(t => eatStepMap[`${t.w},${t.d}`])
     .filter(s => s !== undefined)
     .sort((a, b) => a - b)
@@ -383,7 +453,7 @@ function generateSnake(user) {
     const flashPct = Math.min(parseFloat(eatPct) + 0.3, 95).toFixed(3);
     const gonePct = Math.min(parseFloat(flashPct) + 0.5, 95).toFixed(3);
     const color = cellColors[t.level];
-    // Eaten cells become C.c0 (same as empty cells), NOT bg color
+    // Eaten cells become C.c0, then respawn for loop reset
     eatKf += `@keyframes e${t.w}_${t.d}{` +
       `0%,${eatPct}%{fill:${color};transform:scale(1);opacity:1}` +
       `${flashPct}%{fill:${C.cyan};transform:scale(1.4);opacity:1}` +
