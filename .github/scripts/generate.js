@@ -304,8 +304,8 @@ function generateSnake(user) {
     return moves;
   }
 
-  // ── BFS pathfinding with body avoidance ──
-  function bfsPath(from, to, bodySet) {
+  // ── BFS pathfinding: only walk through blank cells, avoid body ──
+  function bfsPath(from, to, blocked) {
     if (from.w === to.w && from.d === to.d) return [];
     const key = (w, d) => `${w},${d}`;
     const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -318,15 +318,13 @@ function generateSnake(user) {
       for (const [dw, dd] of dirs) {
         const nw = cw + dw, nd = cd + dd;
         const nk = key(nw, nd);
-        // Bounds: allow one column past grid for exit paths
-        if (nw < 0 || nw > cols || nd < 0 || nd >= rows) continue;
+        if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
         if (visited.has(nk)) continue;
-        // Allow the target cell itself, block body cells
-        if (bodySet.has(nk) && !(nw === to.w && nd === to.d)) continue;
+        // Allow the target cell itself, block everything in blocked set
+        if (blocked.has(nk) && !(nw === to.w && nd === to.d)) continue;
         visited.add(nk);
         parent.set(nk, [cw, cd]);
         if (nw === to.w && nd === to.d) {
-          // Reconstruct path (excluding `from`)
           const path = [];
           let c = [nw, nd];
           while (c) {
@@ -341,7 +339,7 @@ function generateSnake(user) {
         queue.push([nw, nd]);
       }
     }
-    return null; // No path found
+    return null;
   }
 
   const startPos = { w: 0, d: rows - 1 };
@@ -353,27 +351,31 @@ function generateSnake(user) {
   let cur = { ...startPos };
   const eatStepMap = {}; // "w,d" -> step index
 
-  const reachable = []; // track which targets the snake actually eats
+  // Track uneaten targets — snake can only walk through blank/eaten cells
+  const uneaten = new Set(targets.map(t => `${t.w},${t.d}`));
+  const reachable = [];
+
   for (const target of targets) {
-    // Compute current body positions to avoid
-    const bodySet = new Set();
+    // Blocked = body cells + all uneaten target cells (except the current target)
+    const blocked = new Set(uneaten);
     for (let b = Math.max(0, fullPath.length - MAX_BODY); b < fullPath.length; b++) {
-      bodySet.add(`${fullPath[b].w},${fullPath[b].d}`);
+      blocked.add(`${fullPath[b].w},${fullPath[b].d}`);
     }
-    const walk = bfsPath(cur, target, bodySet);
-    if (walk === null) continue; // skip — snake is boxed in, avoid self-overlap
+    const walk = bfsPath(cur, target, blocked);
+    if (walk === null) continue; // no blank path — skip this target
     fullPath.push(...walk);
     eatStepMap[`${target.w},${target.d}`] = fullPath.length - 1;
+    uneaten.delete(`${target.w},${target.d}`);
     reachable.push(target);
     cur = { w: target.w, d: target.d };
   }
 
-  // Return to start for infinite loop
-  const returnBodySet = new Set();
+  // Return to start — only body blocks (all eaten cells are blank now)
+  const returnBlocked = new Set(uneaten);
   for (let b = Math.max(0, fullPath.length - MAX_BODY); b < fullPath.length; b++) {
-    returnBodySet.add(`${fullPath[b].w},${fullPath[b].d}`);
+    returnBlocked.add(`${fullPath[b].w},${fullPath[b].d}`);
   }
-  let returnWalk = bfsPath(cur, startPos, returnBodySet);
+  let returnWalk = bfsPath(cur, startPos, returnBlocked);
   if (returnWalk === null) returnWalk = walkBetweenNaive(cur, startPos);
   fullPath.push(...returnWalk);
   // End padding so body gathers before loop
