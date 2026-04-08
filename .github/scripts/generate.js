@@ -287,13 +287,9 @@ function generateSnake(user) {
     };
   }
 
-  // Shuffle targets randomly (seeded by total contributions for reproducibility)
+  // Seeded PRNG for random target selection (reproducible across builds)
   const totalContribs = user.contributionsCollection.contributionCalendar.totalContributions;
   const rng = mulberry32(totalContribs || 42);
-  for (let i = targets.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [targets[i], targets[j]] = [targets[j], targets[i]];
-  }
 
   // ── Naive fallback walk (Manhattan, no body awareness) ──
   function walkBetweenNaive(from, to) {
@@ -353,21 +349,71 @@ function generateSnake(user) {
 
   // Track uneaten targets — snake can only walk through blank/eaten cells
   const uneaten = new Set(targets.map(t => `${t.w},${t.d}`));
-  const reachable = [];
+  const targetMap = {};
+  targets.forEach(t => { targetMap[`${t.w},${t.d}`] = t; });
+  const eaten = [];
 
-  for (const target of targets) {
-    // Blocked = body cells + all uneaten target cells (except the current target)
-    const blocked = new Set(uneaten);
+  // At each step: BFS through blank cells, find all reachable targets, pick one randomly
+  while (uneaten.size > 0) {
+    const bodySet = new Set();
     for (let b = Math.max(0, fullPath.length - MAX_BODY); b < fullPath.length; b++) {
-      blocked.add(`${fullPath[b].w},${fullPath[b].d}`);
+      bodySet.add(`${fullPath[b].w},${fullPath[b].d}`);
     }
-    const walk = bfsPath(cur, target, blocked);
-    if (walk === null) continue; // no blank path — skip this target
-    fullPath.push(...walk);
-    eatStepMap[`${target.w},${target.d}`] = fullPath.length - 1;
-    uneaten.delete(`${target.w},${target.d}`);
-    reachable.push(target);
-    cur = { w: target.w, d: target.d };
+
+    // BFS from cur through walkable cells (blank + eaten, not body, not uneaten targets)
+    // Collect all uneaten targets adjacent to reachable blank cells
+    const key = (w, d) => `${w},${d}`;
+    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const visited = new Set([key(cur.w, cur.d)]);
+    const queue = [[cur.w, cur.d]];
+    const parent = new Map();
+    const reachableTargets = []; // {target, adjKey} — targets we can reach
+
+    while (queue.length > 0) {
+      const [cw, cd] = queue.shift();
+      for (const [dw, dd] of dirs) {
+        const nw = cw + dw, nd = cd + dd;
+        const nk = key(nw, nd);
+        if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
+        if (visited.has(nk)) continue;
+        // If this cell is an uneaten target, it's reachable (but don't walk through it)
+        if (uneaten.has(nk)) {
+          visited.add(nk);
+          parent.set(nk, [cw, cd]);
+          reachableTargets.push(targetMap[nk]);
+          continue; // don't expand further through target cells
+        }
+        // If it's a body cell, skip
+        if (bodySet.has(nk)) continue;
+        // It's a blank/eaten cell — walkable
+        visited.add(nk);
+        parent.set(nk, [cw, cd]);
+        queue.push([nw, nd]);
+      }
+    }
+
+    if (reachableTargets.length === 0) break; // no more reachable targets
+
+    // Pick a random reachable target
+    const pick = reachableTargets[Math.floor(rng() * reachableTargets.length)];
+    const pickKey = key(pick.w, pick.d);
+
+    // Reconstruct path from cur to picked target using BFS parent map
+    const path = [];
+    let c = [pick.w, pick.d];
+    while (c) {
+      path.push({ w: c[0], d: c[1] });
+      const pk = parent.get(key(c[0], c[1]));
+      if (!pk || (pk[0] === cur.w && pk[1] === cur.d)) break;
+      c = pk;
+    }
+    path.reverse();
+
+    fullPath.push(...path);
+    eatStepMap[pickKey] = fullPath.length - 1;
+    uneaten.delete(pickKey);
+    eaten.push(pick);
+    cur = { w: pick.w, d: pick.d };
   }
 
   // Return to start — only body blocks (all eaten cells are blank now)
@@ -417,7 +463,7 @@ function generateSnake(user) {
   }
 
   // ── Growth keyframes: each segment appears when Nth cell is eaten ──
-  const eatPctsSorted = reachable
+  const eatPctsSorted = eaten
     .map(t => eatStepMap[`${t.w},${t.d}`])
     .filter(s => s !== undefined)
     .sort((a, b) => a - b)
