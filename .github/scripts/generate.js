@@ -261,7 +261,6 @@ function generateSnake(user) {
   const H = oy + gridH + 35;
   const cellColors = [C.c0, C.c1, C.c2, C.c3, C.c4];
   const half = cellSize / 2;
-  const MAX_BODY = 14;
 
   // ── Build grid ──
   const grid = Array.from({ length: cols }, () => Array(rows).fill(null));
@@ -276,7 +275,7 @@ function generateSnake(user) {
     }
   }
 
-  // ── Seeded PRNG (mulberry32) for deterministic shuffle ──
+  // ── Seeded PRNG (mulberry32) for deterministic random selection ──
   function mulberry32(seed) {
     let s = seed | 0;
     return function () {
@@ -286,12 +285,13 @@ function generateSnake(user) {
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   }
-
-  // Seeded PRNG for random target selection (reproducible across builds)
   const totalContribs = user.contributionsCollection.contributionCalendar.totalContributions;
   const rng = mulberry32(totalContribs || 42);
 
-  // ── Naive fallback walk (Manhattan, no body awareness) ──
+  const key = (w, d) => `${w},${d}`;
+  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
+  // ── Naive fallback walk (Manhattan) ──
   function walkBetweenNaive(from, to) {
     const moves = [];
     let { w, d } = from;
@@ -300,14 +300,14 @@ function generateSnake(user) {
     return moves;
   }
 
-  // ── BFS pathfinding: only walk through blank cells, avoid body ──
-  function bfsPath(from, to, blocked) {
-    if (from.w === to.w && from.d === to.d) return [];
-    const key = (w, d) => `${w},${d}`;
-    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-    const queue = [[from.w, from.d]];
+  // ── BFS flood-fill: find all reachable targets and paths ──
+  // Returns { reachableTargets, parent } where parent allows path reconstruction
+  // Blocks: body cells + uneaten targets (targets are found but not walked through)
+  function floodFill(from, bodySet, uneatenSet) {
     const visited = new Set([key(from.w, from.d)]);
+    const queue = [[from.w, from.d]];
     const parent = new Map();
+    const reachable = [];
 
     while (queue.length > 0) {
       const [cw, cd] = queue.shift();
@@ -316,116 +316,153 @@ function generateSnake(user) {
         const nk = key(nw, nd);
         if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
         if (visited.has(nk)) continue;
-        // Allow the target cell itself, block everything in blocked set
-        if (blocked.has(nk) && !(nw === to.w && nd === to.d)) continue;
-        visited.add(nk);
-        parent.set(nk, [cw, cd]);
-        if (nw === to.w && nd === to.d) {
-          const path = [];
-          let c = [nw, nd];
-          while (c) {
-            path.push({ w: c[0], d: c[1] });
-            const pk = parent.get(key(c[0], c[1]));
-            if (!pk || (pk[0] === from.w && pk[1] === from.d)) break;
-            c = pk;
-          }
-          path.reverse();
-          return path;
-        }
-        queue.push([nw, nd]);
-      }
-    }
-    return null;
-  }
-
-  const startPos = { w: 0, d: rows - 1 };
-
-  // Pad start so body segments begin gathered at start
-  const fullPath = [];
-  for (let i = 0; i < MAX_BODY; i++) fullPath.push({ ...startPos });
-
-  let cur = { ...startPos };
-  const eatStepMap = {}; // "w,d" -> step index
-
-  // Track uneaten targets — snake can only walk through blank/eaten cells
-  const uneaten = new Set(targets.map(t => `${t.w},${t.d}`));
-  const targetMap = {};
-  targets.forEach(t => { targetMap[`${t.w},${t.d}`] = t; });
-  const eaten = [];
-
-  // At each step: BFS through blank cells, find all reachable targets, pick one randomly
-  while (uneaten.size > 0) {
-    const bodySet = new Set();
-    for (let b = Math.max(0, fullPath.length - MAX_BODY); b < fullPath.length; b++) {
-      bodySet.add(`${fullPath[b].w},${fullPath[b].d}`);
-    }
-
-    // BFS from cur through walkable cells (blank + eaten, not body, not uneaten targets)
-    // Collect all uneaten targets adjacent to reachable blank cells
-    const key = (w, d) => `${w},${d}`;
-    const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-    const visited = new Set([key(cur.w, cur.d)]);
-    const queue = [[cur.w, cur.d]];
-    const parent = new Map();
-    const reachableTargets = []; // {target, adjKey} — targets we can reach
-
-    while (queue.length > 0) {
-      const [cw, cd] = queue.shift();
-      for (const [dw, dd] of dirs) {
-        const nw = cw + dw, nd = cd + dd;
-        const nk = key(nw, nd);
-        if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
-        if (visited.has(nk)) continue;
-        // If this cell is an uneaten target, it's reachable (but don't walk through it)
-        if (uneaten.has(nk)) {
+        // Body cell — blocked
+        if (bodySet.has(nk)) continue;
+        // Uneaten target — reachable but don't walk through it
+        if (uneatenSet.has(nk)) {
           visited.add(nk);
           parent.set(nk, [cw, cd]);
-          reachableTargets.push(targetMap[nk]);
-          continue; // don't expand further through target cells
+          reachable.push(nk);
+          continue;
         }
-        // If it's a body cell, skip
-        if (bodySet.has(nk)) continue;
-        // It's a blank/eaten cell — walkable
+        // Blank or already-eaten cell — walkable
         visited.add(nk);
         parent.set(nk, [cw, cd]);
         queue.push([nw, nd]);
       }
     }
+    return { reachable, parent };
+  }
 
-    if (reachableTargets.length === 0) break; // no more reachable targets
-
-    // Pick a random reachable target
-    const pick = reachableTargets[Math.floor(rng() * reachableTargets.length)];
-    const pickKey = key(pick.w, pick.d);
-
-    // Reconstruct path from cur to picked target using BFS parent map
+  // ── Reconstruct path from BFS parent map ──
+  function reconstructPath(from, toKey, parent) {
     const path = [];
-    let c = [pick.w, pick.d];
+    const [tw, td] = toKey.split(',').map(Number);
+    let c = [tw, td];
     while (c) {
       path.push({ w: c[0], d: c[1] });
       const pk = parent.get(key(c[0], c[1]));
-      if (!pk || (pk[0] === cur.w && pk[1] === cur.d)) break;
+      if (!pk || (pk[0] === from.w && pk[1] === from.d)) break;
       c = pk;
     }
     path.reverse();
+    return path;
+  }
+
+  // ── Compute body set from fullPath at a given point ──
+  function getBodySet(pathArr, bodyLength) {
+    const s = new Set();
+    for (let b = Math.max(0, pathArr.length - bodyLength); b < pathArr.length; b++) {
+      s.add(key(pathArr[b].w, pathArr[b].d));
+    }
+    return s;
+  }
+
+  const startPos = { w: 0, d: rows - 1 };
+  const PAUSE_FRAMES = 1; // 0.1s pause at each target
+
+  // Initial padding so body segments start gathered at startPos
+  const INIT_PAD = 5;
+  const fullPath = [];
+  for (let i = 0; i < INIT_PAD; i++) fullPath.push({ ...startPos });
+
+  let cur = { ...startPos };
+  const eatStepMap = {};
+  const uneaten = new Set(targets.map(t => key(t.w, t.d)));
+  const targetMap = {};
+  targets.forEach(t => { targetMap[key(t.w, t.d)] = t; });
+  const eaten = [];
+  let bodyLength = 0; // grows by 1 per eat
+
+  // ── Main loop: find reachable targets, simulate, pick viable one ──
+  while (uneaten.size > 0) {
+    const bodySet = getBodySet(fullPath, bodyLength);
+    const { reachable, parent } = floodFill(cur, bodySet, uneaten);
+
+    if (reachable.length === 0) break;
+
+    // For each reachable target, simulate reaching it and check viability
+    const viable = [];
+    const pathCache = new Map(); // cache reconstructed paths
+
+    for (const tKey of reachable) {
+      const path = reconstructPath(cur, tKey, parent);
+      pathCache.set(tKey, path);
+
+      // Is this the last target? Always viable.
+      if (uneaten.size === 1) {
+        viable.push(tKey);
+        continue;
+      }
+
+      // Simulate: fullPath + path + pause frame
+      const simPath = [...fullPath, ...path];
+      for (let p = 0; p < PAUSE_FRAMES; p++) {
+        const [tw, td] = tKey.split(',').map(Number);
+        simPath.push({ w: tw, d: td });
+      }
+      const simBodyLength = bodyLength + 1;
+      const simBodySet = getBodySet(simPath, simBodyLength);
+      const simUneaten = new Set(uneaten);
+      simUneaten.delete(tKey);
+      const [tw, td] = tKey.split(',').map(Number);
+
+      // Check: from the target position, can we still reach at least 1 more target?
+      const sim = floodFill({ w: tw, d: td }, simBodySet, simUneaten);
+      if (sim.reachable.length > 0) {
+        viable.push(tKey);
+      }
+    }
+
+    // Pick from viable targets; fall back to any reachable if none viable
+    const candidates = viable.length > 0 ? viable : reachable;
+    const pickKey = candidates[Math.floor(rng() * candidates.length)];
+    const path = pathCache.get(pickKey) || reconstructPath(cur, pickKey, parent);
 
     fullPath.push(...path);
     eatStepMap[pickKey] = fullPath.length - 1;
+    // Pause at target
+    const [pw, pd] = pickKey.split(',').map(Number);
+    for (let p = 0; p < PAUSE_FRAMES; p++) fullPath.push({ w: pw, d: pd });
     uneaten.delete(pickKey);
-    eaten.push(pick);
-    cur = { w: pick.w, d: pick.d };
+    eaten.push(targetMap[pickKey]);
+    bodyLength++;
+    cur = { w: pw, d: pd };
   }
 
-  // Return to start — only body blocks (all eaten cells are blank now)
-  const returnBlocked = new Set(uneaten);
-  for (let b = Math.max(0, fullPath.length - MAX_BODY); b < fullPath.length; b++) {
-    returnBlocked.add(`${fullPath[b].w},${fullPath[b].d}`);
+  // ── Return to start for infinite loop ──
+  const returnBodySet = getBodySet(fullPath, bodyLength);
+  // BFS to start avoiding body + any remaining uneaten
+  const returnBlocked = new Set([...returnBodySet, ...uneaten]);
+  // Simple BFS to startPos
+  const rVisited = new Set([key(cur.w, cur.d)]);
+  const rQueue = [[cur.w, cur.d]];
+  const rParent = new Map();
+  let returnFound = false;
+  while (rQueue.length > 0 && !returnFound) {
+    const [cw, cd] = rQueue.shift();
+    for (const [dw, dd] of dirs) {
+      const nw = cw + dw, nd = cd + dd;
+      const nk = key(nw, nd);
+      if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
+      if (rVisited.has(nk)) continue;
+      if (returnBlocked.has(nk) && !(nw === startPos.w && nd === startPos.d)) continue;
+      rVisited.add(nk);
+      rParent.set(nk, [cw, cd]);
+      if (nw === startPos.w && nd === startPos.d) { returnFound = true; break; }
+      rQueue.push([nw, nd]);
+    }
   }
-  let returnWalk = bfsPath(cur, startPos, returnBlocked);
-  if (returnWalk === null) returnWalk = walkBetweenNaive(cur, startPos);
+  let returnWalk;
+  if (returnFound) {
+    returnWalk = reconstructPath(cur, key(startPos.w, startPos.d), rParent);
+  } else {
+    returnWalk = walkBetweenNaive(cur, startPos);
+  }
   fullPath.push(...returnWalk);
-  // End padding so body gathers before loop
-  for (let i = 0; i < MAX_BODY; i++) fullPath.push({ ...startPos });
+  // End padding so all body segments gather at start before loop
+  const endPad = Math.max(INIT_PAD, eaten.length);
+  for (let i = 0; i < endPad; i++) fullPath.push({ ...startPos });
 
   const totalSteps = fullPath.length;
   const stepDur = 0.10;
@@ -446,69 +483,64 @@ function generateSnake(user) {
     return out;
   }
 
-  // ── Per-segment movement keyframes ──
-  // Each body segment follows head with explicit offset
-  let allMoveKf = '';
-  for (let seg = 0; seg <= MAX_BODY; seg++) {
-    const segPath = fullPath.map((_, i) => fullPath[Math.max(0, i - seg)]);
-    const compressed = compressPath(segPath);
-    let kf = `@keyframes s${seg}{`;
-    compressed.forEach(p => {
-      const pct = (p.idx * pctPerStep).toFixed(3);
-      kf += `${pct}%{transform:translate(${ox + p.w * step}px,${oy + p.d * step}px)}`;
-    });
-    kf += `100%{transform:translate(${ox + startPos.w * step}px,${oy + startPos.d * step}px)}`;
-    kf += '}\n';
-    allMoveKf += kf;
-  }
+  // ── Single movement keyframe (head path) — all segments share it ──
+  const headCompressed = compressPath(fullPath);
+  let moveKf = '@keyframes snakeMove{';
+  headCompressed.forEach(p => {
+    const pct = (p.idx * pctPerStep).toFixed(3);
+    moveKf += `${pct}%{transform:translate(${ox + p.w * step}px,${oy + p.d * step}px)}`;
+  });
+  moveKf += `100%{transform:translate(${ox + startPos.w * step}px,${oy + startPos.d * step}px)}`;
+  moveKf += '}\n';
 
   // ── Growth keyframes: each segment appears when Nth cell is eaten ──
+  const numSegs = eaten.length;
   const eatPctsSorted = eaten
-    .map(t => eatStepMap[`${t.w},${t.d}`])
+    .map(t => eatStepMap[key(t.w, t.d)])
     .filter(s => s !== undefined)
     .sort((a, b) => a - b)
     .map(s => (s * pctPerStep).toFixed(3));
 
-  // Padding offset: first eatPct accounts for the start padding already
+  // Compute when the snake starts returning (last eat + pause + return walk)
+  const lastEatStep = eaten.length > 0
+    ? Math.max(...eaten.map(t => eatStepMap[key(t.w, t.d)] || 0)) + PAUSE_FRAMES
+    : 0;
+  const returnStartPct = ((lastEatStep + returnWalk.length) * pctPerStep).toFixed(1);
+  const fadeDonePct = Math.min(parseFloat(returnStartPct) + 3, 99).toFixed(1);
+
   let growKf = '';
-  for (let seg = 1; seg <= MAX_BODY; seg++) {
-    const eatIdx = seg - 1; // segment 1 appears after 1st eat, 2 after 2nd, etc.
-    const baseOpacity = (1 - seg / MAX_BODY * 0.75).toFixed(2);
-    if (eatIdx < eatPctsSorted.length) {
-      const showPct = eatPctsSorted[eatIdx];
-      const showDone = Math.min(parseFloat(showPct) + 0.5, 95).toFixed(3);
-      // Visible from showPct until snake returns home (~92%), then fade for reset
-      growKf += `@keyframes g${seg}{` +
-        `0%,${showPct}%{opacity:0}` +
-        `${showDone}%{opacity:${baseOpacity}}` +
-        `92%{opacity:${baseOpacity}}` +
-        `96%{opacity:0}` +
-        `100%{opacity:0}` +
-        `}\n`;
-    } else {
-      // Not enough cells to grow this segment — keep hidden
-      growKf += `@keyframes g${seg}{0%,100%{opacity:0}}\n`;
-    }
+  for (let seg = 1; seg <= numSegs; seg++) {
+    const eatIdx = seg - 1;
+    const baseOpacity = Math.max(0.2, 1 - (seg / numSegs) * 0.8).toFixed(2);
+    const showPct = eatPctsSorted[eatIdx];
+    const showDone = Math.min(parseFloat(showPct) + 0.3, 98).toFixed(3);
+    growKf += `@keyframes g${seg}{` +
+      `0%,${showPct}%{opacity:0}` +
+      `${showDone}%{opacity:${baseOpacity}}` +
+      `${returnStartPct}%{opacity:${baseOpacity}}` +
+      `${fadeDonePct}%{opacity:0}` +
+      `100%{opacity:0}` +
+      `}\n`;
   }
 
   // ── Cell eat keyframes ──
   let eatKf = '';
   targets.forEach(t => {
-    const key = `${t.w},${t.d}`;
-    const eatStep = eatStepMap[key];
+    const k = key(t.w, t.d);
+    const eatStep = eatStepMap[k];
     if (eatStep === undefined) return;
     const eatPct = (eatStep * pctPerStep).toFixed(3);
-    const flashPct = Math.min(parseFloat(eatPct) + 0.3, 95).toFixed(3);
-    const gonePct = Math.min(parseFloat(flashPct) + 0.5, 95).toFixed(3);
+    const flashPct = Math.min(parseFloat(eatPct) + 0.2, 98).toFixed(3);
+    const gonePct = Math.min(parseFloat(flashPct) + 0.3, 98).toFixed(3);
     const color = cellColors[t.level];
-    // Eaten cells become C.c0, then respawn for loop reset
+    const respawnStart = Math.min(parseFloat(returnStartPct) + 1, 98).toFixed(1);
+    const respawnDone = Math.min(parseFloat(respawnStart) + 2, 99.5).toFixed(1);
     eatKf += `@keyframes e${t.w}_${t.d}{` +
       `0%,${eatPct}%{fill:${color};transform:scale(1);opacity:1}` +
       `${flashPct}%{fill:${C.cyan};transform:scale(1.4);opacity:1}` +
       `${gonePct}%{fill:${C.c0};transform:scale(1);opacity:1}` +
-      `93%{fill:${C.c0};transform:scale(1);opacity:1}` +
-      `95%{fill:${C.c0};transform:scale(0.5);opacity:0.3}` +
-      `97%{fill:${color};transform:scale(0.5);opacity:0.3}` +
+      `${respawnStart}%{fill:${C.c0};transform:scale(1);opacity:1}` +
+      `${respawnDone}%{fill:${color};transform:scale(1);opacity:1}` +
       `100%{fill:${color};transform:scale(1);opacity:1}` +
       `}\n`;
   });
@@ -520,7 +552,7 @@ function generateSnake(user) {
       const cell = grid[w][d];
       const x = ox + w * step;
       const y = oy + d * step;
-      if (cell.level > 0 && eatStepMap[`${w},${d}`] !== undefined) {
+      if (cell.level > 0 && eatStepMap[key(w, d)] !== undefined) {
         const cx = x + half, cy = y + half;
         cellEls += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" fill="${cellColors[cell.level]}" style="animation:e${w}_${d} ${duration.toFixed(2)}s linear infinite;transform-origin:${cx}px ${cy}px"/>\n`;
       } else {
@@ -530,17 +562,18 @@ function generateSnake(user) {
   }
 
   // ── Snake body (tail first → head last for z-order) ──
+  // All segments share snakeMove keyframe, staggered by animation-delay
   let bodyEls = '';
   const dur = duration.toFixed(2);
 
-  for (let i = MAX_BODY; i >= 1; i--) {
-    const t = i / MAX_BODY;
+  for (let i = numSegs; i >= 1; i--) {
+    const t = i / Math.max(numSegs, 1);
     const radius = Math.max(1, Math.round(3 - t * 2));
     const r = Math.round(249 - t * 120);
     const g = Math.round(115 - t * 70);
     const b = Math.round(22 - t * 5);
-    // Movement via per-segment keyframes, visibility via growth keyframes
-    bodyEls += `<g style="animation:s${i} ${dur}s linear infinite">` +
+    const delay = (i * stepDur).toFixed(2);
+    bodyEls += `<g style="animation:snakeMove ${dur}s linear infinite;animation-delay:${delay}s">` +
       `<rect width="${cellSize}" height="${cellSize}" rx="${radius}" ` +
       `fill="rgb(${r},${g},${b})" ` +
       `style="animation:g${i} ${dur}s linear infinite"/>` +
@@ -548,7 +581,7 @@ function generateSnake(user) {
   }
 
   // Head (always visible, drawn last = on top)
-  bodyEls += `<g style="animation:s0 ${dur}s linear infinite">
+  bodyEls += `<g style="animation:snakeMove ${dur}s linear infinite">
   <rect width="${cellSize}" height="${cellSize}" rx="3" fill="${C.orange}"/>
   <rect x="1" y="1" width="${cellSize - 2}" height="${cellSize - 2}" rx="2" fill="#fb923c"/>
   <circle cx="3.5" cy="4" r="1.5" fill="${C.bg}"/>
@@ -559,7 +592,7 @@ function generateSnake(user) {
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
 <style>
-${allMoveKf}
+${moveKf}
 ${growKf}
 ${eatKf}
 .stitle{fill:${C.text};font-family:${FONT};font-size:16px;font-weight:bold;letter-spacing:1px}
