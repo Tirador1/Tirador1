@@ -300,14 +300,13 @@ function generateSnake(user) {
     return moves;
   }
 
-  // ── BFS flood-fill: find all reachable targets and paths ──
-  // Returns { reachableTargets, parent } where parent allows path reconstruction
-  // Blocks: body cells + uneaten targets (targets are found but not walked through)
-  function floodFill(from, bodySet, uneatenSet) {
+  // ── BFS shortest path: returns first step toward target, or null ──
+  // Blocks: body + uneaten targets (except the target itself)
+  function bfsFirstStep(from, to, blocked) {
+    if (from.w === to.w && from.d === to.d) return null;
     const visited = new Set([key(from.w, from.d)]);
     const queue = [[from.w, from.d]];
     const parent = new Map();
-    const reachable = [];
 
     while (queue.length > 0) {
       const [cw, cd] = queue.shift();
@@ -316,43 +315,75 @@ function generateSnake(user) {
         const nk = key(nw, nd);
         if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
         if (visited.has(nk)) continue;
-        // Body cell — blocked
-        if (bodySet.has(nk)) continue;
-        // Uneaten target — reachable but don't walk through it
-        if (uneatenSet.has(nk)) {
-          visited.add(nk);
-          parent.set(nk, [cw, cd]);
-          reachable.push(nk);
-          continue;
-        }
-        // Blank or already-eaten cell — walkable
+        if (blocked.has(nk) && !(nw === to.w && nd === to.d)) continue;
         visited.add(nk);
         parent.set(nk, [cw, cd]);
+        if (nw === to.w && nd === to.d) {
+          // Trace back to find the first step from `from`
+          let c = [nw, nd];
+          while (true) {
+            const pk = parent.get(key(c[0], c[1]));
+            if (!pk || (pk[0] === from.w && pk[1] === from.d)) break;
+            c = pk;
+          }
+          return { w: c[0], d: c[1] };
+        }
         queue.push([nw, nd]);
       }
     }
-    return { reachable, parent };
+    return null;
   }
 
-  // ── Reconstruct path from BFS parent map ──
-  function reconstructPath(from, toKey, parent) {
-    const path = [];
-    const [tw, td] = toKey.split(',').map(Number);
-    let c = [tw, td];
-    while (c) {
-      path.push({ w: c[0], d: c[1] });
-      const pk = parent.get(key(c[0], c[1]));
-      if (!pk || (pk[0] === from.w && pk[1] === from.d)) break;
-      c = pk;
+  // ── Flood-fill: find all reachable target keys from position ──
+  function findReachableTargets(from, bodySet, uneatenSet) {
+    const visited = new Set([key(from.w, from.d)]);
+    const queue = [[from.w, from.d]];
+    const reachable = [];
+    while (queue.length > 0) {
+      const [cw, cd] = queue.shift();
+      for (const [dw, dd] of dirs) {
+        const nw = cw + dw, nd = cd + dd;
+        const nk = key(nw, nd);
+        if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
+        if (visited.has(nk)) continue;
+        if (bodySet.has(nk)) continue;
+        if (uneatenSet.has(nk)) {
+          visited.add(nk);
+          reachable.push(nk);
+          continue; // don't walk through uneaten targets
+        }
+        visited.add(nk);
+        queue.push([nw, nd]);
+      }
     }
-    path.reverse();
-    return path;
+    return reachable;
   }
 
-  // ── Compute body set from fullPath at a given point ──
-  function getBodySet(pathArr, bodyLength) {
+  // ── Count walkable cells reachable from position (for lookahead) ──
+  function countReachable(from, bodySet, uneatenSet) {
+    const visited = new Set([key(from.w, from.d)]);
+    const queue = [[from.w, from.d]];
+    let count = 0;
+    while (queue.length > 0) {
+      const [cw, cd] = queue.shift();
+      for (const [dw, dd] of dirs) {
+        const nw = cw + dw, nd = cd + dd;
+        const nk = key(nw, nd);
+        if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
+        if (visited.has(nk)) continue;
+        if (bodySet.has(nk) || uneatenSet.has(nk)) continue;
+        visited.add(nk);
+        count++;
+        queue.push([nw, nd]);
+      }
+    }
+    return count;
+  }
+
+  // ── Compute body set from last bodyLength positions in path ──
+  function getBodySet(pathArr, bLen) {
     const s = new Set();
-    for (let b = Math.max(0, pathArr.length - bodyLength); b < pathArr.length; b++) {
+    for (let b = Math.max(0, pathArr.length - bLen); b < pathArr.length; b++) {
       s.add(key(pathArr[b].w, pathArr[b].d));
     }
     return s;
@@ -372,94 +403,102 @@ function generateSnake(user) {
   const targetMap = {};
   targets.forEach(t => { targetMap[key(t.w, t.d)] = t; });
   const eaten = [];
-  let bodyLength = 0; // grows by 1 per eat
+  let bodyLength = 0;
 
-  // ── Main loop: find reachable targets, simulate, pick viable one ──
-  while (uneaten.size > 0) {
-    const bodySet = getBodySet(fullPath, bodyLength);
-    const { reachable, parent } = floodFill(cur, bodySet, uneaten);
+  // ── Main loop: pick target, walk step-by-step with perfect body tracking ──
+  let currentTarget = null;
+  let failCount = 0;
+  const MAX_TOTAL_STEPS = cols * rows * 20; // safety limit
 
-    if (reachable.length === 0) break;
+  while (uneaten.size > 0 && fullPath.length < MAX_TOTAL_STEPS) {
+    // Pick a new target if we don't have one
+    if (!currentTarget) {
+      const bodySet = getBodySet(fullPath, bodyLength);
+      const reachable = findReachableTargets(cur, bodySet, uneaten);
+      if (reachable.length === 0) break;
 
-    // For each reachable target, simulate reaching it and check viability
-    const viable = [];
-    const pathCache = new Map(); // cache reconstructed paths
-
-    for (const tKey of reachable) {
-      const path = reconstructPath(cur, tKey, parent);
-      pathCache.set(tKey, path);
-
-      // Is this the last target? Always viable.
-      if (uneaten.size === 1) {
-        viable.push(tKey);
-        continue;
-      }
-
-      // Simulate: fullPath + path + pause frame
-      const simPath = [...fullPath, ...path];
-      for (let p = 0; p < PAUSE_FRAMES; p++) {
+      // Lookahead: for each candidate, check how much space remains after eating it
+      // Prefer targets that leave the most open space (avoid dead ends)
+      let bestScore = -1;
+      const scored = [];
+      for (const tKey of reachable) {
         const [tw, td] = tKey.split(',').map(Number);
-        simPath.push({ w: tw, d: td });
+        // Quick heuristic: count walkable neighbors of target after eating it
+        // (the target itself becomes walkable once eaten)
+        const simUneaten = new Set(uneaten);
+        simUneaten.delete(tKey);
+        let openNeighbors = 0;
+        for (const [dw, dd] of dirs) {
+          const nw = tw + dw, nd = td + dd;
+          if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
+          const nk = key(nw, nd);
+          if (!simUneaten.has(nk) && !bodySet.has(nk)) openNeighbors++;
+        }
+        scored.push({ key: tKey, score: openNeighbors });
+        if (openNeighbors > bestScore) bestScore = openNeighbors;
       }
-      const simBodyLength = bodyLength + 1;
-      const simBodySet = getBodySet(simPath, simBodyLength);
-      const simUneaten = new Set(uneaten);
-      simUneaten.delete(tKey);
-      const [tw, td] = tKey.split(',').map(Number);
 
-      // Check: from the target position, can we still reach at least 1 more target?
-      const sim = floodFill({ w: tw, d: td }, simBodySet, simUneaten);
-      if (sim.reachable.length > 0) {
-        viable.push(tKey);
-      }
+      // Filter to targets with good scores (at least half of best)
+      const goodTargets = scored.filter(s => s.score >= Math.max(1, bestScore - 1));
+      const pool = goodTargets.length > 0 ? goodTargets : scored;
+      currentTarget = pool[Math.floor(rng() * pool.length)].key;
+      failCount = 0;
     }
 
-    // Pick from viable targets; fall back to any reachable if none viable
-    const candidates = viable.length > 0 ? viable : reachable;
-    const pickKey = candidates[Math.floor(rng() * candidates.length)];
-    const path = pathCache.get(pickKey) || reconstructPath(cur, pickKey, parent);
+    // Build blocked set: body + uneaten targets (except current target)
+    const bodySet = getBodySet(fullPath, bodyLength);
+    const blocked = new Set(bodySet);
+    for (const uk of uneaten) {
+      if (uk !== currentTarget) blocked.add(uk);
+    }
 
-    fullPath.push(...path);
-    eatStepMap[pickKey] = fullPath.length - 1;
-    // Pause at target
-    const [pw, pd] = pickKey.split(',').map(Number);
-    for (let p = 0; p < PAUSE_FRAMES; p++) fullPath.push({ w: pw, d: pd });
-    uneaten.delete(pickKey);
-    eaten.push(targetMap[pickKey]);
-    bodyLength++;
-    cur = { w: pw, d: pd };
-  }
+    const [tw, td] = currentTarget.split(',').map(Number);
+    const target = { w: tw, d: td };
 
-  // ── Return to start for infinite loop ──
-  const returnBodySet = getBodySet(fullPath, bodyLength);
-  // BFS to start avoiding body + any remaining uneaten
-  const returnBlocked = new Set([...returnBodySet, ...uneaten]);
-  // Simple BFS to startPos
-  const rVisited = new Set([key(cur.w, cur.d)]);
-  const rQueue = [[cur.w, cur.d]];
-  const rParent = new Map();
-  let returnFound = false;
-  while (rQueue.length > 0 && !returnFound) {
-    const [cw, cd] = rQueue.shift();
-    for (const [dw, dd] of dirs) {
-      const nw = cw + dw, nd = cd + dd;
-      const nk = key(nw, nd);
-      if (nw < 0 || nw >= cols || nd < 0 || nd >= rows) continue;
-      if (rVisited.has(nk)) continue;
-      if (returnBlocked.has(nk) && !(nw === startPos.w && nd === startPos.d)) continue;
-      rVisited.add(nk);
-      rParent.set(nk, [cw, cd]);
-      if (nw === startPos.w && nd === startPos.d) { returnFound = true; break; }
-      rQueue.push([nw, nd]);
+    // Are we already at the target?
+    if (cur.w === target.w && cur.d === target.d) {
+      eatStepMap[currentTarget] = fullPath.length - 1;
+      for (let p = 0; p < PAUSE_FRAMES; p++) fullPath.push({ ...cur });
+      uneaten.delete(currentTarget);
+      eaten.push(targetMap[currentTarget]);
+      bodyLength++;
+      currentTarget = null;
+      continue;
+    }
+
+    // Take one step toward target
+    const nextStep = bfsFirstStep(cur, target, blocked);
+    if (nextStep) {
+      fullPath.push(nextStep);
+      cur = { w: nextStep.w, d: nextStep.d };
+      failCount = 0;
+    } else {
+      // Can't reach target from here — abandon it, try another
+      currentTarget = null;
+      failCount++;
+      if (failCount > uneaten.size + 5) break; // truly stuck
     }
   }
-  let returnWalk;
-  if (returnFound) {
-    returnWalk = reconstructPath(cur, key(startPos.w, startPos.d), rParent);
-  } else {
-    returnWalk = walkBetweenNaive(cur, startPos);
+
+  // ── Return to start for infinite loop (step-by-step) ──
+  let returnSteps = 0;
+  const MAX_RETURN = cols * rows * 2;
+  while (!(cur.w === startPos.w && cur.d === startPos.d) && returnSteps < MAX_RETURN) {
+    const bodySet = getBodySet(fullPath, bodyLength);
+    const blocked = new Set(bodySet);
+    for (const uk of uneaten) blocked.add(uk);
+    const nextStep = bfsFirstStep(cur, startPos, blocked);
+    if (nextStep) {
+      fullPath.push(nextStep);
+      cur = { w: nextStep.w, d: nextStep.d };
+    } else {
+      // Fallback: naive walk ignoring body
+      fullPath.push(...walkBetweenNaive(cur, startPos));
+      cur = { ...startPos };
+      break;
+    }
+    returnSteps++;
   }
-  fullPath.push(...returnWalk);
   // End padding so all body segments gather at start before loop
   const endPad = Math.max(INIT_PAD, eaten.length);
   for (let i = 0; i < endPad; i++) fullPath.push({ ...startPos });
@@ -501,12 +540,12 @@ function generateSnake(user) {
     .sort((a, b) => a - b)
     .map(s => (s * pctPerStep).toFixed(3));
 
-  // Compute when the snake starts returning (last eat + pause + return walk)
-  const lastEatStep = eaten.length > 0
-    ? Math.max(...eaten.map(t => eatStepMap[key(t.w, t.d)] || 0)) + PAUSE_FRAMES
-    : 0;
-  const returnStartPct = ((lastEatStep + returnWalk.length) * pctPerStep).toFixed(1);
-  const fadeDonePct = Math.min(parseFloat(returnStartPct) + 3, 99).toFixed(1);
+  // Compute when the body should fade (near end, before loop reset)
+  const fadeStartPct = (90).toFixed(1);
+  const fadeDonePct = (96).toFixed(1);
+  // Compute when cells should respawn
+  const respawnPct = (93).toFixed(1);
+  const respawnDonePct = (97).toFixed(1);
 
   let growKf = '';
   for (let seg = 1; seg <= numSegs; seg++) {
@@ -517,7 +556,7 @@ function generateSnake(user) {
     growKf += `@keyframes g${seg}{` +
       `0%,${showPct}%{opacity:0}` +
       `${showDone}%{opacity:${baseOpacity}}` +
-      `${returnStartPct}%{opacity:${baseOpacity}}` +
+      `${fadeStartPct}%{opacity:${baseOpacity}}` +
       `${fadeDonePct}%{opacity:0}` +
       `100%{opacity:0}` +
       `}\n`;
@@ -533,8 +572,8 @@ function generateSnake(user) {
     const flashPct = Math.min(parseFloat(eatPct) + 0.2, 98).toFixed(3);
     const gonePct = Math.min(parseFloat(flashPct) + 0.3, 98).toFixed(3);
     const color = cellColors[t.level];
-    const respawnStart = Math.min(parseFloat(returnStartPct) + 1, 98).toFixed(1);
-    const respawnDone = Math.min(parseFloat(respawnStart) + 2, 99.5).toFixed(1);
+    const respawnStart = respawnPct;
+    const respawnDone = respawnDonePct;
     eatKf += `@keyframes e${t.w}_${t.d}{` +
       `0%,${eatPct}%{fill:${color};transform:scale(1);opacity:1}` +
       `${flashPct}%{fill:${C.cyan};transform:scale(1.4);opacity:1}` +
