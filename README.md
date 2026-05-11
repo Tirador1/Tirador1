@@ -15,33 +15,6 @@
 
 <br/>
 
-<!-- ═══════════════════ ABOUT ═══════════════════ -->
-
-```
- I design and build production-grade backend systems —
- scalable microservices, data pipelines, and REST APIs
- that handle real-world complexity at scale.
-
- My stack: Spring Boot, Kafka, PostgreSQL, Redis, Docker,
- with React & TypeScript on the frontend.
-```
-
-<br/>
-
-<!-- ═══════════════════ ARCHITECTURE ═══════════════════ -->
-<a href="https://github.com/Tirador1">
-  <img src="./assets/architecture.svg" width="100%" alt="System Architecture"/>
-</a>
-
-<br/>
-
-<!-- ═══════════════════ CODE SHOWCASE ═══════════════════ -->
-<a href="https://github.com/Tirador1">
-  <img src="./assets/code-showcase.svg" width="100%" alt="Code Showcase"/>
-</a>
-
-<br/>
-
 <!-- ═══════════════════ TECH ORBIT ═══════════════════ -->
 <a href="https://github.com/Tirador1">
   <img src="./assets/tech-orbit.svg" width="100%" alt="Tech Stack"/>
